@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>HAMYAZ AI</title>
+<title>HAMYAZ AI ULTIMATE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -46,6 +46,7 @@ body{
     padding:12px 16px;
     border-radius:16px;
     max-width:80%;
+    word-wrap:break-word;
 }
 
 .user-message{
@@ -88,13 +89,25 @@ body{
     cursor:pointer;
 }
 
+.google-btn{
+    display:block;
+    margin-top:8px;
+    background:#4285F4;
+    padding:8px;
+    border-radius:8px;
+    text-align:center;
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+
 </style>
 </head>
 
 <body>
 
 <div id="chat-container">
-<div id="header">🇹🇷 HAMYAZ AI</div>
+<div id="header">🇹🇷 HAMYAZ AI ULTIMATE</div>
 
 <div id="chat-window"></div>
 
@@ -107,7 +120,10 @@ body{
 <script>
 
 let isTyping = false;
+let lastMessage = "";
+let repeatCount = 0;
 
+// 🧠 NORMAL CHAT
 const zekiCevaplar = [
 { anahtar:["selam","merhaba","sa","slm"], cevap:[
 "Selam 😎",
@@ -117,26 +133,26 @@ const zekiCevaplar = [
 
 { anahtar:["nasılsın","naber"], cevap:[
 "İyiyim 😄 sen?",
-"CPU biraz yanıyor ama idare 🔥",
-"şempanze u aa u aa 😏"
+"CPU biraz yanıyor 🔥",
+"Kediler benden iyi 😏"
 ]},
 
 { anahtar:["ne yapıyorsun"], cevap:[
-"fırat sabotaj 67 🌍",
+"Evreni izliyorum 🌍",
 "Boş yapıyorum ama kaliteli 😎"
 ]},
 
 { anahtar:["kim","sen kimsin"], cevap:[
 "Ben HAMYAZ AI 🤖",
-"Türk chatbot versiyonuyum ve biraz manyağım 6767 🇹🇷"
+"Türk meme chatbot 🇹🇷"
 ]},
 
-{ anahtar:["evet"], cevap:["Hmm tamam 😏","Anladım 👍","Devam et"]},
+{ anahtar:["evet"], cevap:["Hmm 😏","Tamam 👍","Devam et"]},
 
 { anahtar:["hayır"], cevap:["Peki 😄","Olur 👍","Tamamdır"]}
 ];
 
-// 😂 şaka sistemi
+// 😂 ŞAKA HAVUZU
 const jokes = [
 "3 adam sırayla uçaktan atlamış ✈️😂 uçak paramparça olmuş 🤣🤣",
 
@@ -144,15 +160,15 @@ const jokes = [
 
 "Kerpeten Ali izliyom sus 🤫😂",
 
-"şakalar fırat sabotajdan hee 😏💥",
+"Fırat sabotaj yapmış ama sistem bunu update sanmış 😏💥",
 
-"sana birşey diyeyim mi, koyun ömrünü kurttan korkarak geçirir fakat onu son yiyen çoban olur..",
+"Sistem küçük bir Fırat sabotajı yedi ama reboot attı 😂",
 
 "Ali demiş ki 'ben geliyorum' sistem crash atmış 😭😂"
 ];
 
 window.onload = () => {
-addMessage("🇹🇷 Selam! Şaka mı normal sohbet mi? 😏","ai-message");
+addMessage("🇹🇷 Selam! Şaka mı normal mi Google mı? 😏","ai-message");
 };
 
 function sendMessage(){
@@ -168,6 +184,14 @@ const msgLower=msg.toLowerCase();
 addMessage(msg,"user-message");
 input.value="";
 
+// 🔁 tekrar kontrol
+if(msgLower === lastMessage){
+repeatCount++;
+}else{
+repeatCount=0;
+}
+lastMessage = msgLower;
+
 isTyping=true;
 
 fakeTyping(()=>{
@@ -175,12 +199,24 @@ fakeTyping(()=>{
 let reply="";
 let searchMode=false;
 
-// 😂 şaka modu tetikleme
-if(msgLower.includes("şaka") || msgLower.includes("yap") || msgLower.includes("evet")){
+// 🔁 SAME MESSAGE → GOOGLE
+if(repeatCount >= 1){
+reply="Bunu zaten söyledin 😏 Google’da aratayım mı?";
+searchMode=true;
+}
+
+// 🔍 GOOGLE COMMAND
+else if(msgLower.includes("google") || msgLower.includes("ara") || msgLower.includes("bak")){
+reply="Tamam 😏 Google’da bakıyorum:";
+searchMode=true;
+}
+
+// 😂 ŞAKA MODU
+else if(msgLower.includes("şaka") || msgLower.includes("yap") || msgLower.includes("evet")){
 reply = jokes[Math.floor(Math.random()*jokes.length)];
 }
 
-// 🧠 normal chatbot
+// 🧠 NORMAL CHAT
 else{
 let found = zekiCevaplar.find(item =>
 item.anahtar.some(k=>msgLower.includes(k))
@@ -189,10 +225,12 @@ item.anahtar.some(k=>msgLower.includes(k))
 if(found){
 reply = found.cevap[Math.floor(Math.random()*found.cevap.length)];
 }else{
+
 const fallback = [
 "Kediler uzayda WiFi arıyor 🚀🐱",
-"CPU biraz düşündü ama anlamadı 😄",
-"Bunu çözemedim ama komik geldi 😏"
+"CPU düşündü ama çöktü 😄",
+"Fırat sabotaj modu arka planda aktif 😏",
+"Bunu anlamadım ama komik geldi 😂"
 ];
 
 reply = fallback[Math.floor(Math.random()*fallback.length)];
@@ -215,12 +253,21 @@ cb();
 },600+Math.random()*600);
 }
 
-function addMessage(text,className){
+function addMessage(text,className,showGoogle=false,query=""){
 const win=document.getElementById("chat-window");
 
 const div=document.createElement("div");
 div.className="message "+className;
 div.innerHTML=text;
+
+if(showGoogle){
+const a=document.createElement("a");
+a.className="google-btn";
+a.textContent="🔍 Google'da Ara";
+a.href="https://www.google.com/search?q="+encodeURIComponent(query);
+a.target="_blank";
+div.appendChild(a);
+}
 
 win.appendChild(div);
 win.scrollTop=win.scrollHeight;
