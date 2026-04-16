@@ -41,6 +41,15 @@ padding:6px;
 font-size:13px;
 }
 
+#warning{
+background:#ff0000;
+color:white;
+text-align:center;
+padding:6px;
+font-size:13px;
+font-weight:bold;
+}
+
 #box{
 flex:1;
 overflow-y:auto;
@@ -96,6 +105,7 @@ cursor:pointer;
 font-weight:bold;
 }
 
+/* Öğrenme */
 #learn{
 background:#222;
 padding:10px;
@@ -122,16 +132,6 @@ border-radius:10px;
 font-weight:bold;
 cursor:pointer;
 }
-
-/* UYARI */
-#warning{
-background:#ff0000;
-color:white;
-text-align:center;
-padding:6px;
-font-size:13px;
-font-weight:bold;
-}
 </style>
 </head>
 
@@ -147,7 +147,7 @@ font-weight:bold;
 
 <div id="box"></div>
 
-<!-- 🧠 ÖĞRETME -->
+<!-- 🧠 ÖĞRET -->
 <div id="learn">
 <input id="k" class="small" placeholder="Şunu diyince (örnek: selam)">
 <input id="v" class="small" placeholder="Şunu desin (örnek: merhaba 😄)">
@@ -163,31 +163,50 @@ font-weight:bold;
 
 <script>
 
-// 🧠 VERİ
-let db = JSON.parse(localStorage.getItem("hamyaz_db") || "{}");
+// 🔐 SABİT KEY (en önemli fix)
+const KEY = "hamyaz_db_v2";
 
-// 💬 CEVAP
+// 💾 güvenli yükleme
+function loadDB(){
+try{
+return JSON.parse(localStorage.getItem(KEY)) || {};
+}catch(e){
+return {};
+}
+}
+
+// 💾 güvenli kayıt
+function saveDB(data){
+localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+let db = loadDB();
+
+// 💬 cevap sistemi
 function getReply(text){
 
 text = text.toLowerCase();
 
+// öğrenilenler
 for(let key in db){
 if(text.includes(key)){
 return db[key];
 }
 }
 
+// eski Türk chatbot tarzı fallback
 const fb = [
 "bunu bilmiyorum 😄",
 "anlamadım",
 "tekrar söyler misin?",
-"ilginç 🤔"
+"ilginç 🤔",
+"devam et"
 ];
 
 return fb[Math.floor(Math.random()*fb.length)];
 }
 
-// 💬 SEND
+// 💬 gönder
 function send(){
 
 let input=document.getElementById("text");
@@ -203,7 +222,7 @@ add(getReply(val),"bot");
 input.value="";
 }
 
-// 🧠 ÖĞRET
+// 🧠 öğren
 function learn(){
 
 let k=document.getElementById("k").value.trim().toLowerCase();
@@ -211,17 +230,17 @@ let v=document.getElementById("v").value.trim();
 
 if(!k || !v) return;
 
-// kaydet
+// kayıt
 db[k]=v;
-localStorage.setItem("hamyaz_db",JSON.stringify(db));
+saveDB(db);
 
 document.getElementById("k").value="";
 document.getElementById("v").value="";
 
-alert("Öğrenildi 👍 (sadece bu cihazda kayıtlı)");
+alert("Öğrenildi 👍 artık unutmaz (bu cihazda)");
 }
 
-// 📩 EKLE
+// 📩 mesaj ekle
 function add(text,type){
 let box=document.getElementById("box");
 
@@ -233,7 +252,7 @@ box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 }
 
-// ENTER
+// ⌨️ ENTER FIX
 document.getElementById("text").addEventListener("keydown",e=>{
 if(e.key==="Enter") send();
 });
