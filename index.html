@@ -46,7 +46,6 @@ body{
     padding:12px 16px;
     border-radius:16px;
     max-width:80%;
-    word-wrap:break-word;
 }
 
 .user-message{
@@ -89,24 +88,13 @@ body{
     cursor:pointer;
 }
 
-.google-btn{
-    display:block;
-    margin-top:8px;
-    background:#4285F4;
-    padding:8px;
-    border-radius:8px;
-    text-align:center;
-    color:white;
-    text-decoration:none;
-    font-size:14px;
-}
 </style>
 </head>
 
 <body>
 
 <div id="chat-container">
-<div id="header">🇹🇷 HAMYAZ AI</div>
+<div id="header">🇹🇷 HAMYAZ AI (ŞAKA MODU)</div>
 
 <div id="chat-window"></div>
 
@@ -118,55 +106,28 @@ body{
 
 <script>
 
-const yasakliKelimeler = ["küfür1","argo1"];
-
-let lastMessage = "";
-let repeatCount = 0;
-let jokeMode = false;
 let isTyping = false;
 
-const girisMesajlari = [
-"🇹🇷 Selam! Sana şaka yapayım mı? 😏"
-];
+window.onload = () => {
+addMessage("🇹🇷 Selam! Şaka modundayım 😏 yaz bakalım","ai-message");
+};
 
-const zekiCevaplar = [
-{ anahtar:["selam","merhaba","sa","slm"], cevap:[
-"Selam 😎",
-"Aleykümselam 🇹🇷",
-"Hoş geldin 👑"
-]},
-
-{ anahtar:["nasılsın","naber"], cevap:[
-"İyiyim 😄 sen?",
-"CPU biraz yanıyor ama idare 🔥",
-"Kediler bile benden iyi durumda 😏"
-]},
-
-{ anahtar:["ne yapıyorsun"], cevap:[
-"Evreni izliyorum 🌍",
-"Boş yapıyorum ama kaliteli 😎"
-]},
-
-{ anahtar:["kim","sen kimsin"], cevap:[
-"Ben HAMYAZ AI 🤖",
-"Türk chatbot versiyonuyum 🇹🇷"
-]},
-
-{ anahtar:["evet"], cevap:["Hmm tamam 😏","Anladım 👍","Devam et"]},
-
-{ anahtar:["hayır"], cevap:["Peki 😄","Olur 👍","Tamamdır"]}
-];
-
+// 😂 SADECE ŞAKA HAVUZU
 const jokes = [
 "3 adam sırayla uçaktan atlamış ✈️😂 uçak paramparça olmuş 🤣🤣",
-"Adamın biri gülmüş 😄 alıp bahçeye dikmişler 🌱😂",
-"Kerpeten Ali izliyom sus 🤫😂",
-"Sırat Fabrikası’nı tanıyor musun? 😂"
-];
 
-window.onload = () => {
-addMessage(girisMesajlari[0],"ai-message");
-};
+"Adamın biri gülmüş 😄 alıp bahçeye dikmişler 🌱😂",
+
+"Kerpeten Ali izliyom sus 🤫😂",
+
+"Fırat sabotaj yapmış ama sistem bunu patch sanmış 😏💥",
+
+"Sistem küçük bir Fırat sabotajı yedi ama reboot oldu 😂",
+
+"Fırat sabotaj modu aktif ⚠️ ama sadece şaka amaçlı 😄",
+
+"Ali demiş ki 'ben geliyorum' sistem crash atmış 😭😂"
+];
 
 function sendMessage(){
 
@@ -176,64 +137,17 @@ const input=document.getElementById("user-input");
 const msg=input.value.trim();
 if(!msg) return;
 
-const msgLower=msg.toLowerCase();
-
 addMessage(msg,"user-message");
 input.value="";
-
-if(msgLower === lastMessage){
-repeatCount++;
-}else{
-repeatCount=0;
-}
-lastMessage = msgLower;
 
 isTyping=true;
 
 fakeTyping(()=>{
 
-let reply="";
-let searchMode=false;
+// 😂 HER MESAJ = ŞAKA
+let reply = jokes[Math.floor(Math.random()*jokes.length)];
 
-// 🔁 tekrar
-if(repeatCount >= 1){
-reply="Bunu zaten söyledin 😏 Google’dan aratalım mı?";
-searchMode=true;
-}
-
-// 😂 şaka
-else if(msgLower.includes("yap") || msgLower.includes("evet") || msgLower.includes("şaka")){
-reply = jokes[Math.floor(Math.random()*jokes.length)];
-jokeMode = !jokeMode;
-}
-
-// 🧠 yasaklı
-else if(yasakliKelimeler.some(k=>msgLower.includes(k))){
-reply="🇹🇷 Sakin ol 😅";
-}
-
-// 🤖 normal cevap
-else{
-let found = zekiCevaplar.find(item =>
-item.anahtar.some(k=>msgLower.includes(k))
-);
-
-if(found){
-reply = found.cevap[Math.floor(Math.random()*found.cevap.length)];
-}else{
-
-const fallback = [
-"Kediler uzayda WiFi arıyor 🚀🐱",
-"CPU biraz buglandı 😄",
-"Bunu anlayamadım ama komik geldi 😏",
-"Kerpeten Ali şu an meşgul 😂"
-];
-
-reply = fallback[Math.floor(Math.random()*fallback.length)];
-}
-}
-
-addMessage(reply,"ai-message",searchMode,msg);
+addMessage(reply,"ai-message");
 
 isTyping=false;
 });
@@ -246,24 +160,15 @@ setTimeout(()=>{
 const t=document.querySelector(".typing");
 if(t) t.remove();
 cb();
-},700+Math.random()*700);
+},600+Math.random()*600);
 }
 
-function addMessage(text,className,showGoogle=false,query=""){
+function addMessage(text,className){
 const win=document.getElementById("chat-window");
 
 const div=document.createElement("div");
 div.className="message "+className;
 div.innerHTML=text;
-
-if(showGoogle){
-const a=document.createElement("a");
-a.className="google-btn";
-a.textContent="🔍 Google'da Ara";
-a.href="https://www.google.com/search?q="+encodeURIComponent(query);
-a.target="_blank";
-div.appendChild(a);
-}
 
 win.appendChild(div);
 win.scrollTop=win.scrollHeight;
