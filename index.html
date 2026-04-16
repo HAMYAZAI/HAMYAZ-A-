@@ -161,42 +161,34 @@ cursor:pointer;
 
 <script>
 
-const KEY_NEW = "hamyaz_db_v2";
-const KEY_OLD = "hamyaz_db";
+// 🔐 DB KEY
+const KEY = "hamyaz_db_v2";
 
-// 🧠 eski + yeni yükle (MERGE)
+// 💾 load
 function loadDB(){
-
-let old = {};
-let neu = {};
-
 try{
-old = JSON.parse(localStorage.getItem(KEY_OLD)) || {};
-}catch(e){ old = {}; }
-
-try{
-neu = JSON.parse(localStorage.getItem(KEY_NEW)) || {};
-}catch(e){ neu = {}; }
-
-// 🔥 birleşim (öncelik yeni)
-return {...old, ...neu};
+return JSON.parse(localStorage.getItem(KEY)) || {};
+}catch(e){
+return {};
+}
 }
 
-// 💾 sadece yeni key'e kaydet
+// 💾 save
 function saveDB(data){
-localStorage.setItem(KEY_NEW, JSON.stringify(data));
+localStorage.setItem(KEY, JSON.stringify(data));
 }
 
 let db = loadDB();
 
-// 💬 cevap
+// 💬 SAFE REPLY
 function getReply(text){
 
-text = text.toLowerCase();
+text = String(text).toLowerCase();
 
+// öğrenilenler
 for(let key in db){
 if(text.includes(key)){
-return db[key];
+return String(db[key]); // 💥 object fix burada
 }
 }
 
@@ -211,7 +203,7 @@ const fb = [
 return fb[Math.floor(Math.random()*fb.length)];
 }
 
-// 💬 gönder
+// 💬 send
 function send(){
 
 let input=document.getElementById("text");
@@ -227,7 +219,7 @@ add(getReply(val),"bot");
 input.value="";
 }
 
-// 🧠 öğren
+// 🧠 learn
 function learn(){
 
 let k=document.getElementById("k").value.trim().toLowerCase();
@@ -235,28 +227,34 @@ let v=document.getElementById("v").value.trim();
 
 if(!k || !v) return;
 
-db[k]=v;
+db[k]=String(v); // 💥 object fix
 saveDB(db);
 
 document.getElementById("k").value="";
 document.getElementById("v").value="";
 
-alert("Öğrenildi 👍 (eski + yeni hafıza birleşti)");
+alert("Öğrenildi 👍");
 }
 
-// 📩 ekle
+// 📩 add message (FULL FIX)
 function add(text,type){
-let box=document.getElementById("box");
 
+let box=document.getElementById("box");
 let div=document.createElement("div");
 div.className="msg "+type;
-div.innerText=text;
+
+// 💥 object protection
+if(typeof text === "object"){
+text = JSON.stringify(text);
+}
+
+div.innerText = String(text);
 
 box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 }
 
-// ENTER
+// ⌨️ ENTER FIX
 document.getElementById("text").addEventListener("keydown",e=>{
 if(e.key==="Enter") send();
 });
