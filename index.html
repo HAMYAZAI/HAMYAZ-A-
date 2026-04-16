@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>HAMYAZ AI</title>
+<title>HAMYAZ AI - Öğrenen Bot</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -29,9 +29,8 @@ flex-direction:column;
 background:linear-gradient(90deg,#ff0000,#990000);
 color:white;
 text-align:center;
-padding:15px;
+padding:12px;
 font-weight:bold;
-letter-spacing:1px;
 }
 
 #box{
@@ -54,14 +53,12 @@ word-wrap:break-word;
 background:#004d40;
 color:white;
 align-self:flex-end;
-border:1px solid #00ffcc;
 }
 
 .bot{
 background:#333;
 color:#00ffcc;
 align-self:flex-start;
-border:1px solid #444;
 }
 
 #inputArea{
@@ -84,15 +81,39 @@ button{
 background:#ff0000;
 color:white;
 border:none;
-padding:10px 15px;
-margin-left:8px;
+padding:10px 12px;
+margin-left:6px;
 border-radius:20px;
 cursor:pointer;
 font-weight:bold;
 }
 
-button:hover{
-background:#cc0000;
+/* öğrenme paneli */
+#learnPanel{
+background:#222;
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.smallInput{
+padding:8px;
+border-radius:10px;
+border:none;
+outline:none;
+background:#111;
+color:white;
+}
+
+.learnBtn{
+background:#ffd400;
+color:black;
+padding:8px;
+border-radius:10px;
+border:none;
+cursor:pointer;
+font-weight:bold;
 }
 </style>
 </head>
@@ -101,9 +122,16 @@ background:#cc0000;
 
 <div id="chat">
 
-<div id="header">🇹🇷 HAMYAZ AI</div>
+<div id="header">🇹🇷 HAMYAZ AI - Öğrenen Sistem</div>
 
 <div id="box"></div>
+
+<!-- 🧠 ÖĞRETME PANELİ -->
+<div id="learnPanel">
+<input id="key" class="smallInput" placeholder="Şunu diyince (örnek: selam)">
+<input id="value" class="smallInput" placeholder="Şunu desin (örnek: merhaba 😄)">
+<button class="learnBtn" onclick="learn()">ÖĞRET</button>
+</div>
 
 <div id="inputArea">
 <input id="text" placeholder="Bir şey yaz...">
@@ -114,83 +142,33 @@ background:#cc0000;
 
 <script>
 
-// 🧠 CHATBOT VERİLERİ
-const db = [
+// 🧠 DEFAULT BİLGİLER
+let db = JSON.parse(localStorage.getItem("hamyaz_db") || "[]");
 
-{ keys:["sa","selam","slm","as","hey"],
-replies:["Selam 😄","Aleykümselam 🇹🇷","Hoş geldin 👑","sa naber","hey 👋"] },
-
-{ keys:["nasılsın","naber","napıyon","ne yapıyorsun"],
-replies:["İyiyim 😄 sen?","idare 🔥","takılıyorum","sen ne yapıyorsun?","boş yapıyorum 😏"] },
-
-{ keys:["iyiyim","bende iyiyim","iyi"],
-replies:["güzel 😄","süper 👍","sevindim","harika","cool 😎"] },
-
-{ keys:["sen kimsin","kimsin"],
-replies:["Ben HAMYAZ AI 🤖","Türk chatbot 🇹🇷","kırmızı AI sistemiyim 😎"] },
-
-{ keys:["evet","he","ok","tamam"],
-replies:["ok 👍","tamamdır","devam","güzel","anladım"] },
-
-{ keys:["hayır","yok","olmaz"],
-replies:["peki 😄","tamam","olabilir","sorun değil"] },
-
-{ keys:["ne","hı","anlamadım"],
-replies:["tekrar söyler misin","anlamadım 😄","bir daha","ne dedin?"] },
-
-{ keys:["gül","haha","xd"],
-replies:["😂","komikmiş","lol","güldün 😄"] },
-
-{ keys:["para","zengin"],
-replies:["para önemli 💰","çalış kazan 😄","zengin iyi şey","keşke bende olsa"] },
-
-{ keys:["aşk","sevgi"],
-replies:["❤️","romantik konu","aşk zor","güzel duygu 😄"] },
-
-{ keys:["bye","görüşürüz"],
-replies:["görüşürüz 👋","bye bye","kendine iyi bak","hoşça kal"] },
-
-{ keys:["yardım","help"],
-replies:["nasıl yardımcı olayım?","sor 😄","buradayım","söyle"] },
-
-{ keys:["kötüyüm","üzgünüm"],
-replies:["üzülme 😔","geçer","yanındayım","sıkma canını"] },
-
-{ keys:["saçma"],
-replies:["biraz 😄","olabilir","ben botum 😎","lol"] }
-
-];
-
-// 🔥 ENTER FIX + SEND
-document.getElementById("text").addEventListener("keydown",function(e){
-if(e.key==="Enter"){
-send();
-}
-});
-
+// 🧠 BOT CEVAP
 function getReply(text){
 
 text = text.toLowerCase();
 
-for(let g of db){
-for(let k of g.keys){
-if(text.includes(k)){
-return g.replies[Math.floor(Math.random()*g.replies.length)];
-}
+// öğrendiği şeyler
+for(let item of db){
+if(text.includes(item.key)){
+return item.value;
 }
 }
 
+// fallback
 const fb = [
 "anlamadım 😄",
+"bunu bilmiyorum",
 "tekrar söyler misin?",
-"bunu çözemedim",
-"ilginç 🤔",
-"devam et"
+"ilginç 🤔"
 ];
 
 return fb[Math.floor(Math.random()*fb.length)];
 }
 
+// 💬 MESAJ GÖNDER
 function send(){
 
 let input=document.getElementById("text");
@@ -206,6 +184,32 @@ add(getReply(val),"bot");
 input.value="";
 }
 
+// 🧠 ÖĞRETME SİSTEMİ
+function learn(){
+
+let k=document.getElementById("key").value.trim().toLowerCase();
+let v=document.getElementById("value").value.trim();
+
+if(!k || !v) return;
+
+// ❌ aynı kelime varsa tekrar ekleme
+let exists = db.find(x=>x.key===k);
+
+if(exists){
+alert("Bu kelime zaten öğretilmiş 😄");
+return;
+}
+
+db.push({key:k,value:v});
+localStorage.setItem("hamyaz_db",JSON.stringify(db));
+
+document.getElementById("key").value="";
+document.getElementById("value").value="";
+
+alert("Öğrenildi 👍");
+}
+
+// 📩 CHAT BASTA EKLE
 function add(text,type){
 let box=document.getElementById("box");
 
@@ -216,6 +220,11 @@ div.innerText=text;
 box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 }
+
+// ENTER
+document.getElementById("text").addEventListener("keydown",e=>{
+if(e.key==="Enter") send();
+});
 
 </script>
 
