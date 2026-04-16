@@ -29,17 +29,16 @@ flex-direction:column;
 background:linear-gradient(90deg,#ff0000,#990000);
 color:white;
 text-align:center;
-padding:12px;
+padding:10px;
 font-weight:bold;
 }
 
-#warning{
-background:#ff0000;
-color:white;
+#top{
+background:#111;
+color:#00ffcc;
 text-align:center;
-padding:8px;
+padding:6px;
 font-size:13px;
-font-weight:bold;
 }
 
 #box{
@@ -81,23 +80,23 @@ flex:1;
 padding:10px;
 border:none;
 border-radius:20px;
-outline:none;
 background:#1e1e1e;
 color:white;
+outline:none;
 }
 
 button{
 background:#ff0000;
 color:white;
 border:none;
-padding:10px 12px;
+padding:10px;
 margin-left:6px;
 border-radius:20px;
 cursor:pointer;
 font-weight:bold;
 }
 
-#learnPanel{
+#learn{
 background:#222;
 padding:10px;
 display:flex;
@@ -105,7 +104,7 @@ flex-direction:column;
 gap:6px;
 }
 
-.smallInput{
+.small{
 padding:8px;
 border-radius:10px;
 border:none;
@@ -117,10 +116,20 @@ color:white;
 .learnBtn{
 background:#ff0000;
 color:white;
+border:none;
 padding:8px;
 border-radius:10px;
-border:none;
+font-weight:bold;
 cursor:pointer;
+}
+
+/* UYARI */
+#warning{
+background:#ff0000;
+color:white;
+text-align:center;
+padding:6px;
+font-size:13px;
 font-weight:bold;
 }
 </style>
@@ -132,15 +141,16 @@ font-weight:bold;
 
 <div id="header">🇹🇷 HAMYAZ AI</div>
 
-<div id="warning">
-⚠️ ÖĞRETTİĞİNİZ ŞEYLER SİLİNMEYECEKTİR
-</div>
+<div id="top">⚡ Sezan.site’den daha akıllı AI</div>
+
+<div id="warning">⚠️ Sadece bu cihazda öğrenir</div>
 
 <div id="box"></div>
 
-<div id="learnPanel">
-<input id="key" class="smallInput" placeholder="Şunu diyince (örnek: selam)">
-<input id="value" class="smallInput" placeholder="Şunu desin (örnek: merhaba 😄)">
+<!-- 🧠 ÖĞRETME -->
+<div id="learn">
+<input id="k" class="small" placeholder="Şunu diyince (örnek: selam)">
+<input id="v" class="small" placeholder="Şunu desin (örnek: merhaba 😄)">
 <button class="learnBtn" onclick="learn()">ÖĞRET</button>
 </div>
 
@@ -153,27 +163,23 @@ font-weight:bold;
 
 <script>
 
-// 🚫 KÜFÜR FİLTRESİ
-const badWords = ["küfür1","argo1","siktir","amk","aq"];
-
-// 🧠 KALICI VERİ
-let db = JSON.parse(localStorage.getItem("hamyaz_db") || "[]");
+// 🧠 VERİ
+let db = JSON.parse(localStorage.getItem("hamyaz_db") || "{}");
 
 // 💬 CEVAP
 function getReply(text){
 
 text = text.toLowerCase();
 
-// öğrenilenler
-for(let item of db){
-if(text.includes(item.key)){
-return item.value;
+for(let key in db){
+if(text.includes(key)){
+return db[key];
 }
 }
 
 const fb = [
-"anlamadım 😄",
-"bunu bilmiyorum",
+"bunu bilmiyorum 😄",
+"anlamadım",
 "tekrar söyler misin?",
 "ilginç 🤔"
 ];
@@ -181,21 +187,12 @@ const fb = [
 return fb[Math.floor(Math.random()*fb.length)];
 }
 
-// 💬 MESAJ
+// 💬 SEND
 function send(){
 
 let input=document.getElementById("text");
 let val=input.value.trim();
 if(!val) return;
-
-let lower = val.toLowerCase();
-
-// 🚫 küfür engel
-if(badWords.some(w=>lower.includes(w))){
-add("⚠️ Lütfen uygun dil kullan 😄","bot");
-input.value="";
-return;
-}
 
 add(val,"user");
 
@@ -209,34 +206,22 @@ input.value="";
 // 🧠 ÖĞRET
 function learn(){
 
-let k=document.getElementById("key").value.trim().toLowerCase();
-let v=document.getElementById("value").value.trim();
+let k=document.getElementById("k").value.trim().toLowerCase();
+let v=document.getElementById("v").value.trim();
 
 if(!k || !v) return;
 
-// küfür engel
-if(badWords.some(w=>k.includes(w) || v.includes(w))){
-alert("Uygunsuz içerik eklenemez 🚫");
-return;
-}
-
-// tekrar engel
-let exists = db.find(x=>x.key===k);
-if(exists){
-alert("Bu zaten öğretilmiş 😄");
-return;
-}
-
-db.push({key:k,value:v});
+// kaydet
+db[k]=v;
 localStorage.setItem("hamyaz_db",JSON.stringify(db));
 
-document.getElementById("key").value="";
-document.getElementById("value").value="";
+document.getElementById("k").value="";
+document.getElementById("v").value="";
 
-alert("Öğrenildi 👍 Kalıcı olarak kaydedildi");
+alert("Öğrenildi 👍 (sadece bu cihazda kayıtlı)");
 }
 
-// 📩 ekle
+// 📩 EKLE
 function add(text,type){
 let box=document.getElementById("box");
 
