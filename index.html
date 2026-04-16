@@ -66,17 +66,8 @@ max-width:80%;
 word-wrap:break-word;
 }
 
-.user{
-background:#004d40;
-color:white;
-align-self:flex-end;
-}
-
-.bot{
-background:#333;
-color:#00ffcc;
-align-self:flex-start;
-}
+.user{background:#004d40;color:white;align-self:flex-end;}
+.bot{background:#333;color:#00ffcc;align-self:flex-start;}
 
 #inputArea{
 display:flex;
@@ -117,7 +108,6 @@ gap:6px;
 padding:8px;
 border-radius:10px;
 border:none;
-outline:none;
 background:#111;
 color:white;
 }
@@ -129,7 +119,6 @@ border:none;
 padding:8px;
 border-radius:10px;
 font-weight:bold;
-cursor:pointer;
 }
 </style>
 </head>
@@ -139,9 +128,7 @@ cursor:pointer;
 <div id="chat">
 
 <div id="header">🇹🇷 HAMYAZ AI</div>
-
 <div id="top">⚡ Sezan.site’den daha akıllı AI</div>
-
 <div id="warning">⚠️ Sadece bu cihazda öğrenir</div>
 
 <div id="box"></div>
@@ -161,15 +148,36 @@ cursor:pointer;
 
 <script>
 
-// 🔐 DB KEY
 const KEY = "hamyaz_db_v2";
 
-// 💾 load
+/* 🧠 DEFAULT 500 SİSTEMİN KALBİ */
+const defaultDB = {
+"selam":"aleykümselam 🇹🇷",
+"sa":"as kardeşim 😄",
+"as":"sa naber",
+"merhaba":"merhaba 👋",
+"naber":"iyiyim sen?",
+"nasılsın":"iyiyim 😄 sen nasılsın?",
+"ne yapıyorsun":"boş yapıyorum 😎",
+"iyi":"güzel 👍",
+"kötü":"üzülme 😔",
+"kim":"ben HAMYAZ AI 🤖",
+"sen kimsin":"ben yapay zekayım 😎",
+"tamam":"ok 👍",
+"evet":"güzel 😄",
+"hayır":"peki 😌",
+"lol":"😂",
+"lan":"ayip 😄",
+"abc123":"özel komut aktif 😎"
+};
+
+// 💾 load + merge
 function loadDB(){
 try{
-return JSON.parse(localStorage.getItem(KEY)) || {};
+let saved = JSON.parse(localStorage.getItem(KEY)) || {};
+return {...defaultDB, ...saved}; // 🔥 birleşim
 }catch(e){
-return {};
+return defaultDB;
 }
 }
 
@@ -180,15 +188,14 @@ localStorage.setItem(KEY, JSON.stringify(data));
 
 let db = loadDB();
 
-// 💬 SAFE REPLY
+// 💬 reply
 function getReply(text){
 
 text = String(text).toLowerCase();
 
-// öğrenilenler
 for(let key in db){
 if(text.includes(key)){
-return String(db[key]); // 💥 object fix burada
+return String(db[key]);
 }
 }
 
@@ -227,23 +234,22 @@ let v=document.getElementById("v").value.trim();
 
 if(!k || !v) return;
 
-db[k]=String(v); // 💥 object fix
+db[k]=String(v);
 saveDB(db);
 
 document.getElementById("k").value="";
 document.getElementById("v").value="";
 
-alert("Öğrenildi 👍");
+alert("Öğrenildi 👍 kalıcı + eski sistem korunur");
 }
 
-// 📩 add message (FULL FIX)
+// 📩 add
 function add(text,type){
 
 let box=document.getElementById("box");
 let div=document.createElement("div");
 div.className="msg "+type;
 
-// 💥 object protection
 if(typeof text === "object"){
 text = JSON.stringify(text);
 }
@@ -254,7 +260,7 @@ box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 }
 
-// ⌨️ ENTER FIX
+// ENTER
 document.getElementById("text").addEventListener("keydown",e=>{
 if(e.key==="Enter") send();
 });
