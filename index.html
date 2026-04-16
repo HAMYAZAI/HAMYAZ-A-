@@ -105,7 +105,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* Öğrenme */
 #learn{
 background:#222;
 padding:10px;
@@ -147,10 +146,9 @@ cursor:pointer;
 
 <div id="box"></div>
 
-<!-- 🧠 ÖĞRET -->
 <div id="learn">
-<input id="k" class="small" placeholder="Şunu diyince (örnek: selam)">
-<input id="v" class="small" placeholder="Şunu desin (örnek: merhaba 😄)">
+<input id="k" class="small" placeholder="Şunu diyince">
+<input id="v" class="small" placeholder="Şunu desin">
 <button class="learnBtn" onclick="learn()">ÖĞRET</button>
 </div>
 
@@ -163,38 +161,45 @@ cursor:pointer;
 
 <script>
 
-// 🔐 SABİT KEY (en önemli fix)
-const KEY = "hamyaz_db_v2";
+const KEY_NEW = "hamyaz_db_v2";
+const KEY_OLD = "hamyaz_db";
 
-// 💾 güvenli yükleme
+// 🧠 eski + yeni yükle (MERGE)
 function loadDB(){
+
+let old = {};
+let neu = {};
+
 try{
-return JSON.parse(localStorage.getItem(KEY)) || {};
-}catch(e){
-return {};
-}
+old = JSON.parse(localStorage.getItem(KEY_OLD)) || {};
+}catch(e){ old = {}; }
+
+try{
+neu = JSON.parse(localStorage.getItem(KEY_NEW)) || {};
+}catch(e){ neu = {}; }
+
+// 🔥 birleşim (öncelik yeni)
+return {...old, ...neu};
 }
 
-// 💾 güvenli kayıt
+// 💾 sadece yeni key'e kaydet
 function saveDB(data){
-localStorage.setItem(KEY, JSON.stringify(data));
+localStorage.setItem(KEY_NEW, JSON.stringify(data));
 }
 
 let db = loadDB();
 
-// 💬 cevap sistemi
+// 💬 cevap
 function getReply(text){
 
 text = text.toLowerCase();
 
-// öğrenilenler
 for(let key in db){
 if(text.includes(key)){
 return db[key];
 }
 }
 
-// eski Türk chatbot tarzı fallback
 const fb = [
 "bunu bilmiyorum 😄",
 "anlamadım",
@@ -230,17 +235,16 @@ let v=document.getElementById("v").value.trim();
 
 if(!k || !v) return;
 
-// kayıt
 db[k]=v;
 saveDB(db);
 
 document.getElementById("k").value="";
 document.getElementById("v").value="";
 
-alert("Öğrenildi 👍 artık unutmaz (bu cihazda)");
+alert("Öğrenildi 👍 (eski + yeni hafıza birleşti)");
 }
 
-// 📩 mesaj ekle
+// 📩 ekle
 function add(text,type){
 let box=document.getElementById("box");
 
@@ -252,7 +256,7 @@ box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 }
 
-// ⌨️ ENTER FIX
+// ENTER
 document.getElementById("text").addEventListener("keydown",e=>{
 if(e.key==="Enter") send();
 });
