@@ -1,3 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>HAMYAZ AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:#0d0d0d;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+#chat-container{
+    width:100%;
+    max-width:500px;
+    height:100%;
+    background:#1a1a1a;
+    display:flex;
+    flex-direction:column;
+}
+
+#header{
+    background:linear-gradient(90deg,#ff0000,#990000);
+    padding:18px;
+    text-align:center;
+    font-weight:bold;
+}
+
+#chat-window{
+    flex:1;
+    padding:15px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.message{
+    padding:12px 16px;
+    border-radius:16px;
+    max-width:80%;
+}
+
+.user-message{
+    background:#004d40;
+    align-self:flex-end;
+}
+
+.ai-message{
+    background:#333;
+    color:#00ffcc;
+}
+
+.typing{
+    opacity:0.6;
+    font-style:italic;
+}
+
+#input-area{
+    display:flex;
+    padding:15px;
+    background:#111;
+}
+
+#user-input{
+    flex:1;
+    padding:12px;
+    border-radius:25px;
+    border:2px solid red;
+    background:#1e1e1e;
+    color:white;
+}
+
+#send-btn{
+    margin-left:10px;
+    padding:0 20px;
+    border-radius:25px;
+    border:none;
+    background:red;
+    color:white;
+    cursor:pointer;
+}
+
+.google-btn{
+    display:block;
+    margin-top:8px;
+    background:#4285F4;
+    padding:8px;
+    border-radius:8px;
+    text-align:center;
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="chat-container">
+<div id="header">🇹🇷 HAMYAZ AI</div>
+
+<div id="chat-window"></div>
+
+<div id="input-area">
+<input id="user-input" placeholder="Bir şey yaz..." autocomplete="off">
+<button id="send-btn" onclick="sendMessage()">GİT</button>
+</div>
+</div>
+
 <script>
 
 const yasakliKelimeler = ["küfür1","argo1"];
@@ -12,12 +129,12 @@ let jokeStage = 0;
 let isTyping = false;
 
 const zekiCevaplar = [
-{ anahtar:["selam","merhaba","sa"], cevap:[
+{ anahtar:["selam","merhaba","sa","slm"], cevap:[
 "Selam 😎",
 "Aleykümselam 🇹🇷",
 "Hoş geldin 👑"
 ]},
-{ anahtar:["nasılsın"], cevap:[
+{ anahtar:["nasılsın","naber"], cevap:[
 "Kediler mama içer gibi iyiyim 😄",
 "CPU biraz yanıyor ama idare 🔥",
 "Ben iyiyim sen nasılsın?"
@@ -48,8 +165,8 @@ input.value="";
 // 🔁 aynı mesaj kontrolü
 if(msgLower === lastMessage){
 repeatCount++;
-} else {
-repeatCount = 0;
+}else{
+repeatCount=0;
 }
 lastMessage = msgLower;
 
@@ -60,7 +177,7 @@ fakeTyping(()=>{
 let reply="";
 let searchMode=false;
 
-// 🔁 2 kere aynı şey yazarsa
+// 🔁 tekrar
 if(repeatCount >= 1){
 reply="Bunu zaten söyledin 😏 Google’dan aratalım mı?";
 searchMode=true;
@@ -71,19 +188,18 @@ else if(msgLower.includes("yap") || msgLower.includes("evet")){
 if(jokeStage === 0){
 reply="3 adam sırayla uçaktan atlamış ✈️😂 uçak paramparça olmuş 🤣🤣";
 jokeStage = 1;
-}
-else{
+}else{
 reply="Adamın biri gülmüş 😄 alıp bahçeye dikmişler 🌱😂";
 jokeStage = 0;
 }
 }
 
-// 🧠 yasaklı
+// 🧠 yasaklı kelime
 else if(yasakliKelimeler.some(k=>msgLower.includes(k))){
 reply="🇹🇷 Sakin ol 😅";
 }
 
-// 🤖 normal cevaplar
+// 🤖 normal cevap
 else{
 let found = zekiCevaplar.find(item =>
 item.anahtar.some(k=>msgLower.includes(k))
@@ -91,12 +207,11 @@ item.anahtar.some(k=>msgLower.includes(k))
 
 if(found){
 reply = found.cevap[Math.floor(Math.random()*found.cevap.length)];
-}
-else{
+}else{
 const fallback = [
 "Kediler bilgisayar kullanmayı öğreniyor 🐱💻",
-"Uzayda WiFi çekmiyor galiba 🚀",
-"Bunu anlamadım ama komik duruyor 😄"
+"Uzayda WiFi çekmiyor 🚀",
+"Bunu çözemedim ama komik 😄"
 ];
 
 reply = fallback[Math.floor(Math.random()*fallback.length)];
@@ -145,3 +260,6 @@ if(e.key==="Enter") sendMessage();
 });
 
 </script>
+
+</body>
+</html>
