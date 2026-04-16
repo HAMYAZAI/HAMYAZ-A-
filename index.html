@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>HAMYAZ AI - Öğrenen Bot</title>
+<title>HAMYAZ AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -30,6 +30,15 @@ background:linear-gradient(90deg,#ff0000,#990000);
 color:white;
 text-align:center;
 padding:12px;
+font-weight:bold;
+}
+
+#warning{
+background:#ff0000;
+color:white;
+text-align:center;
+padding:8px;
+font-size:13px;
 font-weight:bold;
 }
 
@@ -88,7 +97,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* öğrenme paneli */
 #learnPanel{
 background:#222;
 padding:10px;
@@ -107,8 +115,8 @@ color:white;
 }
 
 .learnBtn{
-background:#ffd400;
-color:black;
+background:#ff0000;
+color:white;
 padding:8px;
 border-radius:10px;
 border:none;
@@ -122,11 +130,14 @@ font-weight:bold;
 
 <div id="chat">
 
-<div id="header">🇹🇷 HAMYAZ AI - Öğrenen Sistem</div>
+<div id="header">🇹🇷 HAMYAZ AI</div>
+
+<div id="warning">
+⚠️ ÖĞRETTİĞİNİZ ŞEYLER SİLİNMEYECEKTİR
+</div>
 
 <div id="box"></div>
 
-<!-- 🧠 ÖĞRETME PANELİ -->
 <div id="learnPanel">
 <input id="key" class="smallInput" placeholder="Şunu diyince (örnek: selam)">
 <input id="value" class="smallInput" placeholder="Şunu desin (örnek: merhaba 😄)">
@@ -142,22 +153,24 @@ font-weight:bold;
 
 <script>
 
-// 🧠 DEFAULT BİLGİLER
+// 🚫 KÜFÜR FİLTRESİ
+const badWords = ["küfür1","argo1","siktir","amk","aq"];
+
+// 🧠 KALICI VERİ
 let db = JSON.parse(localStorage.getItem("hamyaz_db") || "[]");
 
-// 🧠 BOT CEVAP
+// 💬 CEVAP
 function getReply(text){
 
 text = text.toLowerCase();
 
-// öğrendiği şeyler
+// öğrenilenler
 for(let item of db){
 if(text.includes(item.key)){
 return item.value;
 }
 }
 
-// fallback
 const fb = [
 "anlamadım 😄",
 "bunu bilmiyorum",
@@ -168,12 +181,21 @@ const fb = [
 return fb[Math.floor(Math.random()*fb.length)];
 }
 
-// 💬 MESAJ GÖNDER
+// 💬 MESAJ
 function send(){
 
 let input=document.getElementById("text");
 let val=input.value.trim();
 if(!val) return;
+
+let lower = val.toLowerCase();
+
+// 🚫 küfür engel
+if(badWords.some(w=>lower.includes(w))){
+add("⚠️ Lütfen uygun dil kullan 😄","bot");
+input.value="";
+return;
+}
 
 add(val,"user");
 
@@ -184,7 +206,7 @@ add(getReply(val),"bot");
 input.value="";
 }
 
-// 🧠 ÖĞRETME SİSTEMİ
+// 🧠 ÖĞRET
 function learn(){
 
 let k=document.getElementById("key").value.trim().toLowerCase();
@@ -192,11 +214,16 @@ let v=document.getElementById("value").value.trim();
 
 if(!k || !v) return;
 
-// ❌ aynı kelime varsa tekrar ekleme
-let exists = db.find(x=>x.key===k);
+// küfür engel
+if(badWords.some(w=>k.includes(w) || v.includes(w))){
+alert("Uygunsuz içerik eklenemez 🚫");
+return;
+}
 
+// tekrar engel
+let exists = db.find(x=>x.key===k);
 if(exists){
-alert("Bu kelime zaten öğretilmiş 😄");
+alert("Bu zaten öğretilmiş 😄");
 return;
 }
 
@@ -206,10 +233,10 @@ localStorage.setItem("hamyaz_db",JSON.stringify(db));
 document.getElementById("key").value="";
 document.getElementById("value").value="";
 
-alert("Öğrenildi 👍");
+alert("Öğrenildi 👍 Kalıcı olarak kaydedildi");
 }
 
-// 📩 CHAT BASTA EKLE
+// 📩 ekle
 function add(text,type){
 let box=document.getElementById("box");
 
