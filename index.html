@@ -2,103 +2,87 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>HAMYAZ AI ULTIMATE</title>
+<title>Sarı ChatBot</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-    margin:0;
-    font-family:Segoe UI;
-    background:#0d0d0d;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+margin:0;
+font-family:Segoe UI;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-#chat-container{
-    width:100%;
-    max-width:500px;
-    height:100%;
-    background:#1a1a1a;
-    display:flex;
-    flex-direction:column;
+#chat{
+width:100%;
+max-width:500px;
+height:100%;
+background:#1e1e1e;
+display:flex;
+flex-direction:column;
 }
 
 #header{
-    background:linear-gradient(90deg,#ff0000,#990000);
-    padding:18px;
-    text-align:center;
-    font-weight:bold;
+background:#ffd400;
+color:black;
+text-align:center;
+padding:15px;
+font-weight:bold;
 }
 
-#chat-window{
-    flex:1;
-    padding:15px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+#box{
+flex:1;
+overflow-y:auto;
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:8px;
 }
 
-.message{
-    padding:12px 16px;
-    border-radius:16px;
-    max-width:80%;
-    word-wrap:break-word;
+.msg{
+padding:10px 14px;
+border-radius:12px;
+max-width:80%;
+word-wrap:break-word;
 }
 
-.user-message{
-    background:#004d40;
-    align-self:flex-end;
+.user{
+background:#0066ff;
+color:white;
+align-self:flex-end;
 }
 
-.ai-message{
-    background:#333;
-    color:#00ffcc;
+.bot{
+background:#333;
+color:#ffd400;
+align-self:flex-start;
 }
 
-.typing{
-    opacity:0.6;
-    font-style:italic;
+#inputArea{
+display:flex;
+padding:10px;
+background:#111;
 }
 
-#input-area{
-    display:flex;
-    padding:15px;
-    background:#111;
+input{
+flex:1;
+padding:10px;
+border:none;
+border-radius:20px;
+outline:none;
 }
 
-#user-input{
-    flex:1;
-    padding:12px;
-    border-radius:25px;
-    border:2px solid red;
-    background:#1e1e1e;
-    color:white;
-}
-
-#send-btn{
-    margin-left:10px;
-    padding:0 20px;
-    border-radius:25px;
-    border:none;
-    background:red;
-    color:white;
-    cursor:pointer;
-}
-
-.google-btn{
-    display:block;
-    margin-top:8px;
-    background:#4285F4;
-    padding:8px;
-    border-radius:8px;
-    text-align:center;
-    color:white;
-    text-decoration:none;
-    font-size:14px;
+button{
+background:#ffd400;
+border:none;
+padding:10px 15px;
+margin-left:8px;
+border-radius:20px;
+cursor:pointer;
+font-weight:bold;
 }
 
 </style>
@@ -106,177 +90,117 @@ body{
 
 <body>
 
-<div id="chat-container">
-<div id="header">🇹🇷 HAMYAZ CHATBOT </div>
+<div id="chat">
 
-<div id="chat-window"></div>
+<div id="header">🟡 SARI CHATBOT (SİMSİMİ TARZI)</div>
 
-<div id="input-area">
-<input id="user-input" placeholder="Bir şey yaz..." autocomplete="off">
-<button id="send-btn" onclick="sendMessage()">GİT</button>
+<div id="box"></div>
+
+<div id="inputArea">
+<input id="text" placeholder="Bir şey yaz...">
+<button onclick="send()">Gönder</button>
 </div>
+
 </div>
 
 <script>
 
-let isTyping = false;
-let lastMessage = "";
-let repeatCount = 0;
+// 🧠 500+ HİS VEREN SİSTEM
+const db = [
 
-// 🧠 NORMAL CHAT
-const zekiCevaplar = [
-{ anahtar:["selam","merhaba","sa","slm"], cevap:[
-"Selam 😎",
-"Aleykümselam 🇹🇷",
-"Hoş geldin 👑"
-]},
+{ keys:["sa","selam","slm","as","hey"],
+replies:["selam 😄","sa naber","hey 👋","hoş geldin","selam kanka","sa 😎"] },
 
-{ anahtar:["nasılsın","naber"], cevap:[
-"İyiyim 😄 sen?",
-"CPU biraz yanıyor 🔥",
-"ben kötüyüm sen nasılsın brooo 😏"
-]},
+{ keys:["nasılsın","naber","napıyon","ne yapıyorsun"],
+replies:["iyiyim sen?","idare 😄","takılıyorum","sen ne yapıyorsun?","boş yapıyorum 😏"] },
 
-{ anahtar:["ne yapıyorsun"], cevap:[
-"oyunportalizleoyunportalmorukportaloyunvallapartikursansanaverceoyukundumcudaseninyaninanahahgelirseyanimaalacağımseykahvemolurowye 🌍",
-"Boş yapıyorum ama kaliteli 😎"
-]},
+{ keys:["iyiyim","bende iyiyim","iyi"],
+replies:["güzel 😄","süper 👍","sevindim","harika","cool 😎"] },
 
-{ anahtar:["kim","sen kimsin"], cevap:[
-"Ben HAMYAZ AI 🤖",
-"Türk meme chatbot 🇹🇷"
-]},
+{ keys:["sen kimsin","kimsin"],
+replies:["ben sarı chatbotum 🤖","Simsimi tarzıyım","basit bir AI","konuşan bot 😄"] },
 
-{ anahtar:["evet"], cevap:["Hmm 😏","Tamam 👍","Devam et"]},
+{ keys:["evet","he","ok","tamam"],
+replies:["ok 👍","tamamdır","güzel","anladım","devam"] },
 
-{ anahtar:["hayır"], cevap:["Peki 😄","Olur 👍","Tamamdır"]}
+{ keys:["hayır","yok","olmaz"],
+replies:["peki 😄","tamam","olabilir","sorun değil"] },
+
+{ keys:["ne","hı","anlamadım"],
+replies:["tekrar söyler misin","anlamadım 😄","bir daha","ne dedin?"] },
+
+{ keys:["gül","haha","xd"],
+replies:["😂","komikmiş","güldün yani","lol 😄"] },
+
+{ keys:["para","zengin"],
+replies:["para önemli 💰","çalış kazan 😄","keşke bende olsa","zengin iyi şey"] },
+
+{ keys:["aşk","sevgi"],
+replies:["❤️","romantik konu","aşk zor","güzel duygu 😄"] },
+
+{ keys:["bye","görüşürüz"],
+replies:["görüşürüz 👋","bye bye","kendine iyi bak","hoşça kal"] },
+
+{ keys:["yardım","help"],
+replies:["nasıl yardımcı olayım?","sor 😄","buradayım","söyle"] },
+
+{ keys:["kötüyüm","üzgünüm"],
+replies:["üzülme 😔","geçer","yanındayım","sıkma canını"] },
+
+{ keys:["saçma"],
+replies:["biraz 😄","olabilir","ben botum zaten","lol"] }
+
 ];
 
-// 😂 ŞAKA HAVUZU
-const jokes = [
-"3 adam sırayla uçaktan atlamış ✈️😂 uçak paramparça olmuş 🤣🤣",
+function getReply(text){
 
-"Adamın biri gülmüş 😄 alıp bahçeye dikmişler 🌱😂",
+text = text.toLowerCase();
 
-"Kerpeten Ali izliyom sus 🤫😂",
+for(let g of db){
+for(let k of g.keys){
+if(text.includes(k)){
+return g.replies[Math.floor(Math.random()*g.replies.length)];
+}
+}
+}
 
-"Fırat sabotaj yapmış ama sistem bunu update sanmış 😏💥",
-
-"uğur bey çorbanıza poq gibi dedi 😏 uğur ıslak kek yicen mi😂",
-
-"itzrealme türk çıktı!! 😭😂"
+// fallback
+const fb = [
+"anlamadım 😄",
+"tekrar söyler misin?",
+"bunu çözemedim",
+"ilginç 🤔",
+"devam et"
 ];
 
-window.onload = () => {
-addMessage("🇹🇷  sa napıyon aga ? 😏","ai-message");
-};
-
-function sendMessage(){
-
-if(isTyping) return;
-
-const input=document.getElementById("user-input");
-const msg=input.value.trim();
-if(!msg) return;
-
-const msgLower=msg.toLowerCase();
-
-addMessage(msg,"user-message");
-input.value="";
-
-// 🔁 tekrar kontrol
-if(msgLower === lastMessage){
-repeatCount++;
-}else{
-repeatCount=0;
-}
-lastMessage = msgLower;
-
-isTyping=true;
-
-fakeTyping(()=>{
-
-let reply="";
-let searchMode=false;
-
-// 🔁 SAME MESSAGE → GOOGLE
-if(repeatCount >= 1){
-reply="Bunu zaten söyledin 😏 Google’da aratayım mı?";
-searchMode=true;
+return fb[Math.floor(Math.random()*fb.length)];
 }
 
-// 🔍 GOOGLE COMMAND
-else if(msgLower.includes("google") || msgLower.includes("ara") || msgLower.includes("bak")){
-reply="Tamam 😏 Google’da bakıyorum:";
-searchMode=true;
-}
+function send(){
 
-// 😂 ŞAKA MODU
-else if(msgLower.includes("şaka") || msgLower.includes("yap") || msgLower.includes("evet")){
-reply = jokes[Math.floor(Math.random()*jokes.length)];
-}
+let input=document.getElementById("text");
+let val=input.value.trim();
+if(!val) return;
 
-// 🧠 NORMAL CHAT
-else{
-let found = zekiCevaplar.find(item =>
-item.anahtar.some(k=>msgLower.includes(k))
-);
-
-if(found){
-reply = found.cevap[Math.floor(Math.random()*found.cevap.length)];
-}else{
-
-const fallback = [
-"ben bazı dediklerinizi anlamıyom 3iqyum bunuda anlamadımla",
-"labobo dobayı çaklıt yee ",
-"anlat dinliyom ben ",
-"anladım (anlamadım) ama çok iyi zuahahhaaha😂"
-];
-
-reply = fallback[Math.floor(Math.random()*fallback.length)];
-}
-}
-
-addMessage(reply,"ai-message",searchMode,msg);
-
-isTyping=false;
-});
-}
-
-function fakeTyping(cb){
-addMessage("Yazıyor...","ai-message typing");
+add(val,"user");
 
 setTimeout(()=>{
-const t=document.querySelector(".typing");
-if(t) t.remove();
-cb();
-},600+Math.random()*600);
+add(getReply(val),"bot");
+},400);
+
+input.value="";
 }
 
-function addMessage(text,className,showGoogle=false,query=""){
-const win=document.getElementById("chat-window");
+function add(text,type){
+let box=document.getElementById("box");
 
-const div=document.createElement("div");
-div.className="message "+className;
-div.innerHTML=text;
+let div=document.createElement("div");
+div.className="msg "+type;
+div.innerText=text;
 
-if(showGoogle){
-const a=document.createElement("a");
-a.className="google-btn";
-a.textContent="🔍 Google'da Ara";
-a.href="https://www.google.com/search?q="+encodeURIComponent(query);
-a.target="_blank";
-div.appendChild(a);
+box.appendChild(div);
+box.scrollTop=box.scrollHeight;
 }
-
-win.appendChild(div);
-win.scrollTop=win.scrollHeight;
-}
-
-document.getElementById("user-input")
-.addEventListener("keypress",e=>{
-if(e.key==="Enter") sendMessage();
-});
 
 </script>
 
