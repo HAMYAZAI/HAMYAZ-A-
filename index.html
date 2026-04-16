@@ -2,14 +2,14 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Sarı ChatBot</title>
+<title>HAMYAZ AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
 margin:0;
 font-family:Segoe UI;
-background:#111;
+background:#0d0d0d;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -20,17 +20,18 @@ height:100vh;
 width:100%;
 max-width:500px;
 height:100%;
-background:#1e1e1e;
+background:#1a1a1a;
 display:flex;
 flex-direction:column;
 }
 
 #header{
-background:#ffd400;
-color:black;
+background:linear-gradient(90deg,#ff0000,#990000);
+color:white;
 text-align:center;
 padding:15px;
 font-weight:bold;
+letter-spacing:1px;
 }
 
 #box{
@@ -50,15 +51,17 @@ word-wrap:break-word;
 }
 
 .user{
-background:#0066ff;
+background:#004d40;
 color:white;
 align-self:flex-end;
+border:1px solid #00ffcc;
 }
 
 .bot{
 background:#333;
-color:#ffd400;
+color:#00ffcc;
 align-self:flex-start;
+border:1px solid #444;
 }
 
 #inputArea{
@@ -73,10 +76,13 @@ padding:10px;
 border:none;
 border-radius:20px;
 outline:none;
+background:#1e1e1e;
+color:white;
 }
 
 button{
-background:#ffd400;
+background:#ff0000;
+color:white;
 border:none;
 padding:10px 15px;
 margin-left:8px;
@@ -85,6 +91,9 @@ cursor:pointer;
 font-weight:bold;
 }
 
+button:hover{
+background:#cc0000;
+}
 </style>
 </head>
 
@@ -92,36 +101,36 @@ font-weight:bold;
 
 <div id="chat">
 
-<div id="header">🟡 SARI CHATBOT (SİMSİMİ TARZI)</div>
+<div id="header">🇹🇷 HAMYAZ AI</div>
 
 <div id="box"></div>
 
 <div id="inputArea">
 <input id="text" placeholder="Bir şey yaz...">
-<button onclick="send()">Gönder</button>
+<button onclick="send()">GİT</button>
 </div>
 
 </div>
 
 <script>
 
-// 🧠 500+ HİS VEREN SİSTEM
+// 🧠 CHATBOT VERİLERİ
 const db = [
 
 { keys:["sa","selam","slm","as","hey"],
-replies:["selam 😄","sa naber","hey 👋","hoş geldin","selam kanka","sa 😎"] },
+replies:["Selam 😄","Aleykümselam 🇹🇷","Hoş geldin 👑","sa naber","hey 👋"] },
 
 { keys:["nasılsın","naber","napıyon","ne yapıyorsun"],
-replies:["iyiyim sen?","idare 😄","takılıyorum","sen ne yapıyorsun?","boş yapıyorum 😏"] },
+replies:["İyiyim 😄 sen?","idare 🔥","takılıyorum","sen ne yapıyorsun?","boş yapıyorum 😏"] },
 
 { keys:["iyiyim","bende iyiyim","iyi"],
 replies:["güzel 😄","süper 👍","sevindim","harika","cool 😎"] },
 
 { keys:["sen kimsin","kimsin"],
-replies:["ben sarı chatbotum 🤖","Simsimi tarzıyım","basit bir AI","konuşan bot 😄"] },
+replies:["Ben HAMYAZ AI 🤖","Türk chatbot 🇹🇷","kırmızı AI sistemiyim 😎"] },
 
 { keys:["evet","he","ok","tamam"],
-replies:["ok 👍","tamamdır","güzel","anladım","devam"] },
+replies:["ok 👍","tamamdır","devam","güzel","anladım"] },
 
 { keys:["hayır","yok","olmaz"],
 replies:["peki 😄","tamam","olabilir","sorun değil"] },
@@ -130,10 +139,10 @@ replies:["peki 😄","tamam","olabilir","sorun değil"] },
 replies:["tekrar söyler misin","anlamadım 😄","bir daha","ne dedin?"] },
 
 { keys:["gül","haha","xd"],
-replies:["😂","komikmiş","güldün yani","lol 😄"] },
+replies:["😂","komikmiş","lol","güldün 😄"] },
 
 { keys:["para","zengin"],
-replies:["para önemli 💰","çalış kazan 😄","keşke bende olsa","zengin iyi şey"] },
+replies:["para önemli 💰","çalış kazan 😄","zengin iyi şey","keşke bende olsa"] },
 
 { keys:["aşk","sevgi"],
 replies:["❤️","romantik konu","aşk zor","güzel duygu 😄"] },
@@ -148,9 +157,16 @@ replies:["nasıl yardımcı olayım?","sor 😄","buradayım","söyle"] },
 replies:["üzülme 😔","geçer","yanındayım","sıkma canını"] },
 
 { keys:["saçma"],
-replies:["biraz 😄","olabilir","ben botum zaten","lol"] }
+replies:["biraz 😄","olabilir","ben botum 😎","lol"] }
 
 ];
+
+// 🔥 ENTER FIX + SEND
+document.getElementById("text").addEventListener("keydown",function(e){
+if(e.key==="Enter"){
+send();
+}
+});
 
 function getReply(text){
 
@@ -164,7 +180,6 @@ return g.replies[Math.floor(Math.random()*g.replies.length)];
 }
 }
 
-// fallback
 const fb = [
 "anlamadım 😄",
 "tekrar söyler misin?",
