@@ -5,22 +5,25 @@
     <title>HAMYAZ AI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         #chat { width: 100%; max-width: 500px; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; }
         #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; }
         #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; }
         #warning { background: #ff0000; color: white; text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
         #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; word-wrap: break-word; position: relative; }
-        .user { background: #004d40; color: white; align-self: flex-end; }
-        .bot { background: #333; color: #00ffcc; align-self: flex-start; }
-        
-        /* Düşünüyor animasyonu */
-        .typing { font-style: italic; font-size: 12px; color: #aaa; background: none; }
-
+        .msg { display: flex; align-items: flex-start; max-width: 85%; word-wrap: break-word; }
+        .user { align-self: flex-end; flex-direction: row-reverse; }
+        .bot { align-self: flex-start; }
+        .text { padding: 10px 14px; border-radius: 12px; font-size: 14px; }
+        .user .text { background: #004d40; color: white; }
+        .bot .text { background: #333; color: #00ffcc; }
+        .icon { width: 30px; height: 30px; border-radius: 50%; font-size: 18px; display: flex; justify-content: center; align-items: center; }
+        .user .icon { margin-left: 8px; background: #fff; color: #333; }
+        .bot .icon { margin-right: 8px; background: #900; color: #fff; }
+        .typing { font-style: italic; color: #777 !important; background: transparent !important; }
         #inputArea { display: flex; padding: 10px; background: #111; }
-        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; }
-        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; font-size: 14px; }
+        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; }
         #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
         .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; }
         .learnBtn { background: #ff0000; color: white; border: none; padding: 8px; border-radius: 10px; font-weight: bold; }
@@ -48,38 +51,42 @@
 const KEY = "hamyaz_db_v3";
 let lastInput = ""; 
 
+// --- RASTGELE BİLGİ LİSTESİ ---
+const rastgeleBilgiler = [
+    "Ada Lovelace, 1843'te bir makine için algoritma yazarak dünyanın ilk programcısı olmuştur.",
+    "Dünyanın en büyük yazılım hatası, 1996'da Ariane 5 roketinin 40 saniye içinde patlamasına neden olan küçük bir matematiksel hata yüzünden yaşandı.",
+    "Bilgisayar kodlarındaki 'bug' (böcek) terimi, 1947'de bir rölede sıkışıp kalan gerçek bir güve sayesinde doğmuştur.",
+    "Python, ismini meşhur komedi grubu Monty Python'dan almıştır.",
+    "İlk dijital bilgisayar olan ENIAC, 30 ton ağırlığındaydı ve koca bir odayı kaplıyordu.",
+    "Dünyadaki ilk bilgisayar faresi, 1964 yılında Doug Engelbart tarafından ahşaptan yapılmıştır."
+];
+
 const defaultDB = {
     "selam":"aleykümselam 🇹🇷",
     "sa":"as kardeşim 😄",
     "naber":"iyiyim sen?",
     "nasılsın":"iyiyim 😄 sen nasılsın?",
     "kimsin":"ben HAMYAZ AI 🤖",
-    "elhamdülillah":"Allah kabul etsin kardeşim 🙏",
     "müslüman mısın":"Elhamdülillah 👍"
 };
 
-function loadDB(){
-    try {
-        let saved = JSON.parse(localStorage.getItem(KEY)) || {};
-        return {...defaultDB, ...saved};
-    } catch(e) { return defaultDB; }
-}
-
-let db = loadDB();
+let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
 function getReply(text){
-    text = String(text).toLowerCase().trim();
-    
-    // Esnek Anlama (Slm, mrb gibi kısaltmalar için)
-    text = text.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
+    let t = text.toLowerCase().trim();
+    t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
+
+    // --- RASTGELE BİLGİ KONTROLÜ ---
+    if(t.includes("bilgi ver") || t.includes("rastgele bilgi") || t.includes("ilginç bir bilgi")) {
+        return rastgeleBilgiler[Math.floor(Math.random() * rastgeleBilgiler.length)];
+    }
 
     for(let key in db){
-        // Kullanıcı "selammm" yazsa da "selam" anahtarını yakalar
-        if(text.includes(key) || key.includes(text)){
-            return String(db[key]);
+        if(t.includes(key) || key.includes(t)){
+            return db[key];
         }
     }
-    const fb = ["bunu bilmiyorum 😄", "anlamadım", "hee", "ilginç 🤔", "devam et"];
+    const fb = ["bunu bilmiyorum 😄", "anlamadım", "hee", "ilginç 🤔"];
     return fb[Math.floor(Math.random()*fb.length)];
 }
 
@@ -88,36 +95,35 @@ function send(){
     let val = input.value.trim();
     if(!val) return;
 
-    // Google Arama Kontrolü
+    // Google Arama Sistemi
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, Google'da arıyorum... 🚀", "bot");
+        add("Aynı şeyi yazdın, Google'a uçuruyorum... 🚀", "bot");
         setTimeout(() => {
             window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
         }, 1000);
-        lastInput = ""; 
+        lastInput = "";
         input.value = "";
         return;
     }
-    lastInput = val; 
+    lastInput = val;
 
     add(val, "user");
     input.value = "";
 
-    // --- Düşünme Efekti Başlangıç ---
-    let typingDiv = add("HAMYAZ AI yazıyor...", "bot typing");
+    // Yazıyor efekti
+    let typingDiv = add("...", "bot typing");
     
     setTimeout(() => {
-        typingDiv.remove(); // "Yazıyor..." yazısını kaldır
-        add(getReply(val), "bot"); // Gerçek cevabı ekle
-    }, 2000); // tam 2 saniye bekler
-    // --- Düşünme Efekti Bitiş ---
+        typingDiv.remove(); // "..." yazısını sil
+        add(getReply(val), "bot"); // Cevabı getir
+    }, 2000); 
 }
 
 function learn(){
     let k = document.getElementById("k").value.trim().toLowerCase();
     let v = document.getElementById("v").value.trim();
     if(!k || !v) return;
-    db[k] = String(v);
+    db[k] = v;
     localStorage.setItem(KEY, JSON.stringify(db));
     document.getElementById("k").value = "";
     document.getElementById("v").value = "";
@@ -128,10 +134,23 @@ function add(text, type){
     let box = document.getElementById("box");
     let div = document.createElement("div");
     div.className = "msg " + type;
-    div.innerText = String(text);
+
+    // Profil ikonlarını ekle
+    let icon = document.createElement("div");
+    icon.className = "icon";
+    if(type.includes("user")) { icon.innerText = "🧑"; }
+    else { icon.innerText = "🤖"; }
+    
+    let textDiv = document.createElement("div");
+    textDiv.className = "text";
+    textDiv.innerText = text;
+
+    div.appendChild(icon);
+    div.appendChild(textDiv);
+    
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
-    return div; // Div'i geri döndürüyoruz ki sonra silebilelim (yazıyor efekti için)
+    return div; 
 }
 
 document.getElementById("text").addEventListener("keydown", e => {
