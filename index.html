@@ -9,7 +9,6 @@
         #chat { width: 100%; max-width: 500px; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; }
         #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; }
         #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; }
-        #warning { background: #ff0000; color: white; text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
         #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .msg { display: flex; align-items: flex-start; max-width: 85%; word-wrap: break-word; }
         .user { align-self: flex-end; flex-direction: row-reverse; }
@@ -22,8 +21,8 @@
         .bot .icon { margin-right: 8px; background: #900; color: #fff; }
         .typing { font-style: italic; color: #777 !important; background: transparent !important; }
         #inputArea { display: flex; padding: 10px; background: #111; }
-        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; font-size: 14px; }
-        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; }
+        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
         .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; }
         .learnBtn { background: #ff0000; color: white; border: none; padding: 8px; border-radius: 10px; font-weight: bold; }
@@ -34,7 +33,6 @@
 <div id="chat">
     <div id="header">🇹🇷 HAMYAZ AI</div>
     <div id="top">⚡ Sezan.site’den daha akıllı AI</div>
-    <div id="warning">⚠️ Sadece bu cihazda öğrenir öğrettikleriniz</div>
     <div id="box"></div>
     <div id="learn">
         <input id="k" class="small" placeholder="Şunu diyince">
@@ -48,33 +46,18 @@
 </div>
 
 <script>
-const KEY = "hamyaz_db_v4";
+const KEY = "hamyaz_db_v5";
 let lastInput = ""; 
 
-const rastgeleBilgiler = [
-    "Ada Lovelace, 1843'te dünyanın ilk programcısı olmuştur.",
-    "Python ismi meşhur komedi grubu Monty Python'dan gelir.",
-    "İlk bilgisayar faresi ahşaptan yapılmıştır.",
-    "Bilgisayardaki 'bug' terimi gerçek bir böcekten (güve) gelir."
-];
-
-// --- GENİŞLETİLMİŞ ÖĞRENMİŞ DB ---
 const defaultDB = {
     "selam": "aleykümselam kardeşim 🇹🇷",
     "sa": "as, naber? 😄",
-    "as": "naber aga?",
     "naber": "iyidir, senden naber?",
     "nasılsın": "çok iyiyim, sen nasılsın? 😄",
-    "iyiyim": "hep iyi ol inşallah 👍",
-    "kötüyüm": "hayırdır inşallah, niye kötü hissediyorsun? 😔",
+    "ok": "yok yay 😂",
     "napıyon": "seninle konuşuyorum, kodlarımı geliştiriyorum 😎",
-    "ne yapıyorsun": "boş yapıyorum desem inanma, sistemi geliştiriyorum!",
-    "kimsin": "Ben HAMYAZ AI, senin kişisel asistanınım 🤖",
-    "yaşın kaç": "Yaşım yok ama kodlarım taze!",
-    "nerelisin": "Bağcılar çocuğuyuz, semt bizim ev kira! 😂",
     "müslüman mısın": "Elhamdülillah 👍",
-    "bye": "görüşürüz kardeşim, kendine iyi bak 👋",
-    "eyvallah": "ne demek her zaman 🤝"
+    "nerelisin": "Bağcılar çocuğuyuz, semt bizim ev kira! 😂"
 };
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
@@ -82,23 +65,18 @@ let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 function getReply(text){
     let t = text.toLowerCase().trim();
     
-    // Akıllı Temizlik (napıyonnn, slm, slmmm vb. hepsini standart yapar)
+    // Kelime temizleme
     t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
-    t = t.replace(/napıyon/g, "napıyon").replace(/napion/g, "napıyon").replace(/napıosun/g, "napıyon");
-    t = t.replace(/nassın/g, "nasılsın").replace(/nasilsin/g, "nasılsın");
-
-    if(t.includes("bilgi ver") || t.includes("rastgele bilgi")) {
-        return rastgeleBilgiler[Math.floor(Math.random() * rastgeleBilgiler.length)];
-    }
+    
+    // Tam eşleşme kontrolü (Özellikle "ok" gibi kısa kelimeler için önemli)
+    if(db[t]) return db[t];
 
     for(let key in db){
-        // Kullanıcı "selammmm" yazsa da "selam" anahtarını yakalar
         if(t.includes(key) || key.includes(t)){
             return db[key];
         }
     }
-    const fb = ["bunu henüz öğrenmedim 😄", "anlamadım ne dediğini?", "ilginçmiş...", "biraz daha anlat", "hee, anlıyorum"];
-    return fb[Math.floor(Math.random()*fb.length)];
+    return "bunu henüz öğrenmedim 😄";
 }
 
 function send(){
@@ -107,19 +85,14 @@ function send(){
     if(!val) return;
 
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazınca Google'a gönderiyorum... 🚀", "bot");
-        setTimeout(() => {
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
-        }, 1000);
-        lastInput = "";
-        input.value = "";
-        return;
+        add("Google'da arıyorum... 🚀", "bot");
+        setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
+        lastInput = ""; input.value = ""; return;
     }
     lastInput = val;
 
     add(val, "user");
     input.value = "";
-
     let typingDiv = add("...", "bot typing");
     
     setTimeout(() => {
@@ -143,26 +116,20 @@ function add(text, type){
     let box = document.getElementById("box");
     let div = document.createElement("div");
     div.className = "msg " + type;
-
     let icon = document.createElement("div");
     icon.className = "icon";
     icon.innerText = type.includes("user") ? "🧑" : "🤖";
-    
     let textDiv = document.createElement("div");
     textDiv.className = "text";
     textDiv.innerText = text;
-
     div.appendChild(icon);
     div.appendChild(textDiv);
-    
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
     return div; 
 }
 
-document.getElementById("text").addEventListener("keydown", e => {
-    if(e.key === "Enter") send();
-});
+document.getElementById("text").addEventListener("keydown", e => { if(e.key === "Enter") send(); });
 </script>
 </body>
 </html>
