@@ -11,9 +11,13 @@
         #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; }
         #warning { background: #ff0000; color: white; text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
         #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; word-wrap: break-word; }
+        .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; word-wrap: break-word; position: relative; }
         .user { background: #004d40; color: white; align-self: flex-end; }
         .bot { background: #333; color: #00ffcc; align-self: flex-start; }
+        
+        /* Düşünüyor animasyonu */
+        .typing { font-style: italic; font-size: 12px; color: #aaa; background: none; }
+
         #inputArea { display: flex; padding: 10px; background: #111; }
         input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; }
         button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; }
@@ -41,8 +45,8 @@
 </div>
 
 <script>
-const KEY = "hamyaz_db_v2";
-let lastInput = ""; // Son yazılanı tutmak için değişken
+const KEY = "hamyaz_db_v3";
+let lastInput = ""; 
 
 const defaultDB = {
     "selam":"aleykümselam 🇹🇷",
@@ -61,14 +65,17 @@ function loadDB(){
     } catch(e) { return defaultDB; }
 }
 
-function saveDB(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
-
 let db = loadDB();
 
 function getReply(text){
-    text = String(text).toLowerCase();
+    text = String(text).toLowerCase().trim();
+    
+    // Esnek Anlama (Slm, mrb gibi kısaltmalar için)
+    text = text.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
+
     for(let key in db){
-        if(text === key || text.includes(key)){ // Daha esnek ama kontrollü eşleşme
+        // Kullanıcı "selammm" yazsa da "selam" anahtarını yakalar
+        if(text.includes(key) || key.includes(text)){
             return String(db[key]);
         }
     }
@@ -81,22 +88,29 @@ function send(){
     let val = input.value.trim();
     if(!val) return;
 
-    // --- ARATMA SİSTEMİ BAŞLANGIÇ ---
+    // Google Arama Kontrolü
     if(val.toLowerCase() === lastInput.toLowerCase()){
         add("Aynı şeyi yazdın, Google'da arıyorum... 🚀", "bot");
         setTimeout(() => {
             window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
-        }, 800);
-        lastInput = ""; // Aramadan sonra sıfırla
+        }, 1000);
+        lastInput = ""; 
         input.value = "";
         return;
     }
-    lastInput = val; // Mevcut yazılanı hafızaya al
-    // --- ARATMA SİSTEMİ BİTİŞ ---
+    lastInput = val; 
 
     add(val, "user");
-    setTimeout(() => { add(getReply(val), "bot"); }, 400);
     input.value = "";
+
+    // --- Düşünme Efekti Başlangıç ---
+    let typingDiv = add("HAMYAZ AI yazıyor...", "bot typing");
+    
+    setTimeout(() => {
+        typingDiv.remove(); // "Yazıyor..." yazısını kaldır
+        add(getReply(val), "bot"); // Gerçek cevabı ekle
+    }, 2000); // tam 2 saniye bekler
+    // --- Düşünme Efekti Bitiş ---
 }
 
 function learn(){
@@ -104,7 +118,7 @@ function learn(){
     let v = document.getElementById("v").value.trim();
     if(!k || !v) return;
     db[k] = String(v);
-    saveDB(db);
+    localStorage.setItem(KEY, JSON.stringify(db));
     document.getElementById("k").value = "";
     document.getElementById("v").value = "";
     alert("Öğrenildi 👍");
@@ -117,6 +131,7 @@ function add(text, type){
     div.innerText = String(text);
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
+    return div; // Div'i geri döndürüyoruz ki sonra silebilelim (yazıyor efekti için)
 }
 
 document.getElementById("text").addEventListener("keydown", e => {
