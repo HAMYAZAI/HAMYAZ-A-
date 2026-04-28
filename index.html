@@ -48,45 +48,56 @@
 </div>
 
 <script>
-const KEY = "hamyaz_db_v3";
+const KEY = "hamyaz_db_v4";
 let lastInput = ""; 
 
-// --- RASTGELE BİLGİ LİSTESİ ---
 const rastgeleBilgiler = [
-    "Ada Lovelace, 1843'te bir makine için algoritma yazarak dünyanın ilk programcısı olmuştur.",
-    "Dünyanın en büyük yazılım hatası, 1996'da Ariane 5 roketinin 40 saniye içinde patlamasına neden olan küçük bir matematiksel hata yüzünden yaşandı.",
-    "Bilgisayar kodlarındaki 'bug' (böcek) terimi, 1947'de bir rölede sıkışıp kalan gerçek bir güve sayesinde doğmuştur.",
-    "Python, ismini meşhur komedi grubu Monty Python'dan almıştır.",
-    "İlk dijital bilgisayar olan ENIAC, 30 ton ağırlığındaydı ve koca bir odayı kaplıyordu.",
-    "Dünyadaki ilk bilgisayar faresi, 1964 yılında Doug Engelbart tarafından ahşaptan yapılmıştır."
+    "Ada Lovelace, 1843'te dünyanın ilk programcısı olmuştur.",
+    "Python ismi meşhur komedi grubu Monty Python'dan gelir.",
+    "İlk bilgisayar faresi ahşaptan yapılmıştır.",
+    "Bilgisayardaki 'bug' terimi gerçek bir böcekten (güve) gelir."
 ];
 
+// --- GENİŞLETİLMİŞ ÖĞRENMİŞ DB ---
 const defaultDB = {
-    "selam":"aleykümselam 🇹🇷",
-    "sa":"as kardeşim 😄",
-    "naber":"iyiyim sen?",
-    "nasılsın":"iyiyim 😄 sen nasılsın?",
-    "kimsin":"ben HAMYAZ AI 🤖",
-    "müslüman mısın":"Elhamdülillah 👍"
+    "selam": "aleykümselam kardeşim 🇹🇷",
+    "sa": "as, naber? 😄",
+    "as": "naber aga?",
+    "naber": "iyidir, senden naber?",
+    "nasılsın": "çok iyiyim, sen nasılsın? 😄",
+    "iyiyim": "hep iyi ol inşallah 👍",
+    "kötüyüm": "hayırdır inşallah, niye kötü hissediyorsun? 😔",
+    "napıyon": "seninle konuşuyorum, kodlarımı geliştiriyorum 😎",
+    "ne yapıyorsun": "boş yapıyorum desem inanma, sistemi geliştiriyorum!",
+    "kimsin": "Ben HAMYAZ AI, senin kişisel asistanınım 🤖",
+    "yaşın kaç": "Yaşım yok ama kodlarım taze!",
+    "nerelisin": "Bağcılar çocuğuyuz, semt bizim ev kira! 😂",
+    "müslüman mısın": "Elhamdülillah 👍",
+    "bye": "görüşürüz kardeşim, kendine iyi bak 👋",
+    "eyvallah": "ne demek her zaman 🤝"
 };
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
 function getReply(text){
     let t = text.toLowerCase().trim();
+    
+    // Akıllı Temizlik (napıyonnn, slm, slmmm vb. hepsini standart yapar)
     t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
+    t = t.replace(/napıyon/g, "napıyon").replace(/napion/g, "napıyon").replace(/napıosun/g, "napıyon");
+    t = t.replace(/nassın/g, "nasılsın").replace(/nasilsin/g, "nasılsın");
 
-    // --- RASTGELE BİLGİ KONTROLÜ ---
-    if(t.includes("bilgi ver") || t.includes("rastgele bilgi") || t.includes("ilginç bir bilgi")) {
+    if(t.includes("bilgi ver") || t.includes("rastgele bilgi")) {
         return rastgeleBilgiler[Math.floor(Math.random() * rastgeleBilgiler.length)];
     }
 
     for(let key in db){
+        // Kullanıcı "selammmm" yazsa da "selam" anahtarını yakalar
         if(t.includes(key) || key.includes(t)){
             return db[key];
         }
     }
-    const fb = ["bunu bilmiyorum 😄", "anlamadım", "hee", "ilginç 🤔"];
+    const fb = ["bunu henüz öğrenmedim 😄", "anlamadım ne dediğini?", "ilginçmiş...", "biraz daha anlat", "hee, anlıyorum"];
     return fb[Math.floor(Math.random()*fb.length)];
 }
 
@@ -95,9 +106,8 @@ function send(){
     let val = input.value.trim();
     if(!val) return;
 
-    // Google Arama Sistemi
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, Google'a uçuruyorum... 🚀", "bot");
+        add("Aynı şeyi yazınca Google'a gönderiyorum... 🚀", "bot");
         setTimeout(() => {
             window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
         }, 1000);
@@ -110,12 +120,11 @@ function send(){
     add(val, "user");
     input.value = "";
 
-    // Yazıyor efekti
     let typingDiv = add("...", "bot typing");
     
     setTimeout(() => {
-        typingDiv.remove(); // "..." yazısını sil
-        add(getReply(val), "bot"); // Cevabı getir
+        typingDiv.remove();
+        add(getReply(val), "bot");
     }, 2000); 
 }
 
@@ -135,11 +144,9 @@ function add(text, type){
     let div = document.createElement("div");
     div.className = "msg " + type;
 
-    // Profil ikonlarını ekle
     let icon = document.createElement("div");
     icon.className = "icon";
-    if(type.includes("user")) { icon.innerText = "🧑"; }
-    else { icon.innerText = "🤖"; }
+    icon.innerText = type.includes("user") ? "🧑" : "🤖";
     
     let textDiv = document.createElement("div");
     textDiv.className = "text";
