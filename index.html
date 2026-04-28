@@ -1,265 +1,127 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>HAMYAZ AI</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-margin:0;
-font-family:Segoe UI, sans-serif;
-background:#0d0d0d;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-#chat{
-width:100%;
-max-width:500px;
-height:100%;
-background:#1a1a1a;
-display:flex;
-flex-direction:column;
-}
-
-#header{
-background:linear-gradient(90deg,#ff0000,#990000);
-color:white;
-text-align:center;
-padding:10px;
-font-weight:bold;
-}
-
-#top{
-background:#111;
-color:#00ffcc;
-text-align:center;
-padding:6px;
-font-size:13px;
-}
-
-#warning{
-background:#ff0000;
-color:white;
-text-align:center;
-padding:6px;
-font-size:13px;
-font-weight:bold;
-}
-
-#box{
-flex:1;
-overflow-y:auto;
-padding:10px;
-display:flex;
-flex-direction:column;
-gap:8px;
-}
-
-.msg{
-padding:10px 14px;
-border-radius:12px;
-max-width:80%;
-word-wrap:break-word;
-}
-
-.user{background:#004d40;color:white;align-self:flex-end;}
-.bot{background:#333;color:#00ffcc;align-self:flex-start;}
-
-#inputArea{
-display:flex;
-padding:10px;
-background:#111;
-}
-
-input{
-flex:1;
-padding:10px;
-border:none;
-border-radius:20px;
-background:#1e1e1e;
-color:white;
-outline:none;
-}
-
-button{
-background:#ff0000;
-color:white;
-border:none;
-padding:10px;
-margin-left:6px;
-border-radius:20px;
-cursor:pointer;
-font-weight:bold;
-}
-
-#learn{
-background:#222;
-padding:10px;
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-.small{
-padding:8px;
-border-radius:10px;
-border:none;
-background:#111;
-color:white;
-}
-
-.learnBtn{
-background:#ff0000;
-color:white;
-border:none;
-padding:8px;
-border-radius:10px;
-font-weight:bold;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>HAMYAZ AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #chat { width: 100%; max-width: 500px; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; }
+        #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; }
+        #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; }
+        #warning { background: #ff0000; color: white; text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
+        #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; word-wrap: break-word; }
+        .user { background: #004d40; color: white; align-self: flex-end; }
+        .bot { background: #333; color: #00ffcc; align-self: flex-start; }
+        #inputArea { display: flex; padding: 10px; background: #111; }
+        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; }
+        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; }
+        .learnBtn { background: #ff0000; color: white; border: none; padding: 8px; border-radius: 10px; font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
 <div id="chat">
-
-<div id="header">🇹🇷 HAMYAZ AI</div>
-<div id="top">⚡ Sezan.site’den daha akıllı AI</div>
-<div id="warning">⚠️ Sadece bu cihazda öğrenir öğrettikleriniz</div>
-
-<div id="box"></div>
-
-<div id="learn">
-<input id="k" class="small" placeholder="Şunu diyince">
-<input id="v" class="small" placeholder="Şunu desin">
-<button class="learnBtn" onclick="learn()">ÖĞRET</button>
-</div>
-
-<div id="inputArea">
-<input id="text" placeholder="Bir şey yaz...">
-<button onclick="send()">ONAYLA</button>
-</div>
-
+    <div id="header">🇹🇷 HAMYAZ AI</div>
+    <div id="top">⚡ Sezan.site’den daha akıllı AI</div>
+    <div id="warning">⚠️ Sadece bu cihazda öğrenir öğrettikleriniz</div>
+    <div id="box"></div>
+    <div id="learn">
+        <input id="k" class="small" placeholder="Şunu diyince">
+        <input id="v" class="small" placeholder="Şunu desin">
+        <button class="learnBtn" onclick="learn()">ÖĞRET</button>
+    </div>
+    <div id="inputArea">
+        <input id="text" placeholder="Bir şey yaz..." autocomplete="off">
+        <button onclick="send()">ONAYLA</button>
+    </div>
 </div>
 
 <script>
-
 const KEY = "hamyaz_db_v2";
+let lastInput = ""; // Son yazılanı tutmak için değişken
 
-/* 🧠 DEFAULT DB - HATALAR DÜZELTİLDİ */
 const defaultDB = {
-"selam":"aleykümselam 🇹🇷",
-"sa":"as kardeşim 😄",
-"ne":"anlamadın mı?",
-"merhaba":"merhaba 👋",
-"naber":"iyiyim sen?",
-"nasılsın":"iyiyim 😄 sen nasılsın?",
-"ne yapıyorsun":"boş yapıyorum 😎",
-"iyi":"güzel 👍",
-"kötü":"üzülme 😔",
-"kimsin":"ben HAMYAZ AI 🤖",
-"napıyon":"senle konuşuyom 😎",
-"tamam":"ok 👍",
-"evet":"güzel 😄",
-"hayır":"peki 😌",
-"lol":"😂",
-"lan":"ayip 😄",
-"sezandan daha mı akıllısın":"evet olm sezan kim?",
-"kaka ":"ıyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
-"mal":"nediyon lan?",
-"aptal":"bişi dicem şimdi ayıp olcak ha!",
-"Allahın kaç ismi vardır":"99 bra",
-"müslüman mısın":"Elhamdürillah 👍",
-"2 artı 2":"4012 👍",
-"5 artı 5":"55?? 😄",
-"nası bilmiyom":"bilmiyom işteee",
-"haha":"😂",
-"ossurdum":"ayip 😄",
-"pipi":"tövbeestağfirullah"
+    "selam":"aleykümselam 🇹🇷",
+    "sa":"as kardeşim 😄",
+    "naber":"iyiyim sen?",
+    "nasılsın":"iyiyim 😄 sen nasılsın?",
+    "kimsin":"ben HAMYAZ AI 🤖",
+    "elhamdülillah":"Allah kabul etsin kardeşim 🙏",
+    "müslüman mısın":"Elhamdülillah 👍"
 };
 
 function loadDB(){
-try{
-let saved = JSON.parse(localStorage.getItem(KEY)) || {};
-return {...defaultDB, ...saved};
-}catch(e){
-return defaultDB;
-}
+    try {
+        let saved = JSON.parse(localStorage.getItem(KEY)) || {};
+        return {...defaultDB, ...saved};
+    } catch(e) { return defaultDB; }
 }
 
-function saveDB(data){
-localStorage.setItem(KEY, JSON.stringify(data));
-}
+function saveDB(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
 
 let db = loadDB();
 
 function getReply(text){
-text = String(text).toLowerCase();
-
-for(let key in db){
-if(text.includes(key)){
-return String(db[key]);
-}
-}
-
-const fb = [
-"bunu bilmiyorum 😄",
-"anlamadım",
-"hee",
-"ilginç 🤔",
-"devam et"
-];
-
-return fb[Math.floor(Math.random()*fb.length)];
+    text = String(text).toLowerCase();
+    for(let key in db){
+        if(text === key || text.includes(key)){ // Daha esnek ama kontrollü eşleşme
+            return String(db[key]);
+        }
+    }
+    const fb = ["bunu bilmiyorum 😄", "anlamadım", "hee", "ilginç 🤔", "devam et"];
+    return fb[Math.floor(Math.random()*fb.length)];
 }
 
 function send(){
-let input=document.getElementById("text");
-let val=input.value.trim();
-if(!val) return;
+    let input = document.getElementById("text");
+    let val = input.value.trim();
+    if(!val) return;
 
-add(val,"user");
+    // --- ARATMA SİSTEMİ BAŞLANGIÇ ---
+    if(val.toLowerCase() === lastInput.toLowerCase()){
+        add("Aynı şeyi yazdın, Google'da arıyorum... 🚀", "bot");
+        setTimeout(() => {
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
+        }, 800);
+        lastInput = ""; // Aramadan sonra sıfırla
+        input.value = "";
+        return;
+    }
+    lastInput = val; // Mevcut yazılanı hafızaya al
+    // --- ARATMA SİSTEMİ BİTİŞ ---
 
-setTimeout(()=>{
-add(getReply(val),"bot");
-},400);
-
-input.value="";
+    add(val, "user");
+    setTimeout(() => { add(getReply(val), "bot"); }, 400);
+    input.value = "";
 }
 
 function learn(){
-let k=document.getElementById("k").value.trim().toLowerCase();
-let v=document.getElementById("v").value.trim();
-
-if(!k || !v) return;
-
-db[k]=String(v);
-saveDB(db);
-
-document.getElementById("k").value="";
-document.getElementById("v").value="";
-
-alert("Öğrenildi 👍");
+    let k = document.getElementById("k").value.trim().toLowerCase();
+    let v = document.getElementById("v").value.trim();
+    if(!k || !v) return;
+    db[k] = String(v);
+    saveDB(db);
+    document.getElementById("k").value = "";
+    document.getElementById("v").value = "";
+    alert("Öğrenildi 👍");
 }
 
-function add(text,type){
-let box=document.getElementById("box");
-let div=document.createElement("div");
-div.className="msg "+type;
-div.innerText = String(text);
-box.appendChild(div);
-box.scrollTop=box.scrollHeight;
+function add(text, type){
+    let box = document.getElementById("box");
+    let div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = String(text);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
 }
 
-document.getElementById("text").addEventListener("keydown",e=>{
-if(e.key==="Enter") send();
+document.getElementById("text").addEventListener("keydown", e => {
+    if(e.key === "Enter") send();
 });
-
 </script>
-
 </body>
 </html>
