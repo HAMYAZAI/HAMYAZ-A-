@@ -125,7 +125,7 @@ function getReply(text){
     }
 
     // 3. Adım: Bilmiyorsa rastgele cevap
-    const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Bilgi güçtür ama ben bunu bilmiyorum şimdilik!"];
+    const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Wow!"];
     return fb[Math.floor(Math.random()*fb.length)];
 }
 
@@ -161,7 +161,7 @@ function learn(){
     localStorage.setItem(KEY, JSON.stringify(db));
     document.getElementById("k").value = "";
     document.getElementById("v").value = "";
-    alert("Hafızama kaydettim! 👍");
+    alert("Hafızama kaydettim bra! 👍");
 }
 
 function add(text, type){
