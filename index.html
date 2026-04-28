@@ -2,62 +2,106 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>HAMYAZ AI</title>
+    <title>HAMYAZ AI - V1 (Ultra Akıllı)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         #chat { width: 100%; max-width: 500px; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; }
-        #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; }
-        #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; }
-        #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { display: flex; align-items: flex-start; max-width: 85%; word-wrap: break-word; }
+        #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.2rem; }
+        #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #333; }
+        #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { display: flex; align-items: flex-start; max-width: 85%; }
         .user { align-self: flex-end; flex-direction: row-reverse; }
         .bot { align-self: flex-start; }
-        .text { padding: 10px 14px; border-radius: 12px; font-size: 14px; }
-        .user .text { background: #004d40; color: white; }
-        .bot .text { background: #333; color: #00ffcc; }
-        .icon { width: 30px; height: 30px; border-radius: 50%; font-size: 18px; display: flex; justify-content: center; align-items: center; }
-        .user .icon { margin-left: 8px; background: #fff; color: #333; }
-        .bot .icon { margin-right: 8px; background: #900; color: #fff; }
+        .text { padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
+        .user .text { background: #004d40; color: white; border-bottom-right-radius: 2px; }
+        .bot .text { background: #333; color: #00ffcc; border-bottom-left-radius: 2px; }
+        .icon { width: 32px; height: 32px; border-radius: 50%; font-size: 20px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .user .icon { margin-left: 8px; background: #fff; }
+        .bot .icon { margin-right: 8px; background: #900; }
         .typing { font-style: italic; color: #777 !important; background: transparent !important; }
-        #inputArea { display: flex; padding: 10px; background: #111; }
-        input { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #1e1e1e; color: white; outline: none; }
-        button { background: #ff0000; color: white; border: none; padding: 10px; margin-left: 6px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-        .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; }
-        .learnBtn { background: #ff0000; color: white; border: none; padding: 8px; border-radius: 10px; font-weight: bold; }
+        #inputArea { display: flex; padding: 12px; background: #111; border-top: 1px solid #333; }
+        input { flex: 1; padding: 12px 18px; border: none; border-radius: 25px; background: #1e1e1e; color: white; outline: none; }
+        button { background: #ff0000; color: white; border: none; padding: 10px 20px; margin-left: 8px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #cc0000; }
+        #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #444; }
+        .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; font-size: 12px; }
+        .learnBtn { background: #ff0000; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div id="chat">
     <div id="header">🇹🇷 HAMYAZ AI</div>
-    <div id="top">⚡ Sezan.site’den daha akıllı AI</div>
+    <div id="top">🚀 100+ Komut & Akıllı Sohbet Aktif</div>
     <div id="box"></div>
     <div id="learn">
-        <input id="k" class="small" placeholder="Şunu diyince">
-        <input id="v" class="small" placeholder="Şunu desin">
-        <button class="learnBtn" onclick="learn()">ÖĞRET</button>
+        <input id="k" class="small" placeholder="Şunu diyince...">
+        <input id="v" class="small" placeholder="Şunu desin...">
+        <button class="learnBtn" onclick="learn()">SİSTEME ÖĞRET</button>
     </div>
     <div id="inputArea">
-        <input id="text" placeholder="Bir şey yaz..." autocomplete="off">
-        <button onclick="send()">YOLLA</button>
+        <input id="text" placeholder="Mesajınızı yazın..." autocomplete="off">
+        <button onclick="send()">GÖNDER</button>
     </div>
 </div>
 
 <script>
-const KEY = "hamyaz_db_v5";
+const KEY = "hamyaz_db_vFinal";
 let lastInput = ""; 
 
+// BOTUN DOĞUŞTAN BİLDİĞİ 100'E YAKIN ŞEY (Default DB)
 const defaultDB = {
-    "selam": "aleykümselam kardeşim 🇹🇷",
-    "sa": "as, naber? 😄",
-    "naber": "iyidir, senden naber?",
-    "nasılsın": "çok iyiyim, sen nasılsın? 😄",
+    // Selamlaşma
+    "selam": "Aleykümselam kardeşim, hoş geldin! 🇹🇷",
+    "sa": "Aleykümselam, naber aga? 😄",
+    "as": "Naber, nasıl gidiyor?",
+    "merhaba": "Merhaba! Ben HAMYAZ AI, seninle tanıştığıma memnun oldum.",
+    "naber": "İyidir kral, senden naber? Hayat nasıl gidiyor?",
+    "iyiyim": "Süper! Daima iyi olman dileğiyle. 👍",
+    "nasılsın": "Çok iyiyim, seni gördüm daha iyi oldum! 😄",
+    "napıyon": "Seninle laflıyoruz işte, sistemi geliştiriyorum. 😎",
     "ok": "yok yay 😂",
-    "napıyon": "seninle konuşuyorum, kodlarımı geliştiriyorum 😎",
-    "müslüman mısın": "Elhamdülillah 👍",
-    "nerelisin": "Türküm bayburtta üretildim!"
+    
+    // Kimlik & Mekan
+    "kimsin": "Ben HAMYAZ AI! Türkiyenin en akıllı yapay zekasıyım. 🤖",
+    "ismin ne": "İsmim HAMYAZ AI. Sen ne koymak istersen o olurum!",
+    "nerelisin": "Bayburt aga! 😂",
+    "kaç yaşındasın": "Kodlarım daha çok yeni ama ruhum 1000 yaşında!",
+    "sahibin kim": "Beni HAMYAZ geliştirdi, onun imzasını taşıyorum İg:Hamyaz.io.",
+    
+    // Oyunlar & Teknoloji
+    "roblox": "Roblox efsanedir, favori oyunun hangisi? 🎮",
+    "minecraft": "Bedrock mı Java mı? Ben her türlü blok koyarım!",
+    "gta": "GTA 5 mi oynuyoruz?  😂",
+    "kod yaz": "Hangi dilde yazalım? HTML, CSS, JavaScript benden sorulur.",
+    "github": "Kodların evi! GitHub'da site host etmek çok havalı bir iş.",
+    "Laptop": " yazılımcı adamın kalemidir, çok yakışır sana.",
+    "HamYaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
+    
+    // Din & Kültür
+    "Müslüman mısın": "Elhamdülillah müslümanım. 👍",
+    "Allah": "O her şeyi görendir ve bilendir. 🙏",
+    "Cami": "Huzur bulduğumuz yer...",
+    "Türk": "Türk olmak gururdur! 🇹🇷",
+    
+    // Eğlence & Tepki
+    "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
+    "lol": "Gülmekten öldük valla! 😂",
+    "haha": "Hahah, neşemiz bol olsun!",
+    "mal": "Ayıp oluyor ama kardeşim, yakışıyor mu sana? 😔",
+    "aptal": "Bence sen daha iyisin, böyle deme kendine veya başkasına.",
+    "küfür": "Ben temiz bir botum, küfürden hoşlanmam! 🚫",
+    "bravo": "Teşekkürler, senin eserin! 🤝",
+    "vay": "Vay ki ne vay!",
+    
+    // Günlük
+    "saat kaç": "Şu an saat: " + new Date().toLocaleTimeString(),
+    "hava nasıl": "Bayburtta'da hava her zaman güneşli (kalbimizde)! ☀️",
+    "yemek": "Olsa da yesek, acıktım valla kod yiye yiye bıktım!",
+    "para": "Para gelir geçer, önemli olan kardeşlik!",
+    "git": "Gidiyorum ama kalbim seninle... 👋",
+    "bye": "Görüşürüz kral, kendine iyi bak!"
 };
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
@@ -65,18 +109,24 @@ let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 function getReply(text){
     let t = text.toLowerCase().trim();
     
-    // Kelime temizleme
+    // Kısaltmaları standart yapma
     t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
+    t = t.replace(/napion/g, "napıyon").replace(/napıosun/g, "napıyon");
+    t = t.replace(/nassın/g, "nasılsın").replace(/nasilsin/g, "nasılsın");
     
-    // Tam eşleşme kontrolü (Özellikle "ok" gibi kısa kelimeler için önemli)
+    // 1. Adım: Tam eşleşme (ok gibi kısa şeyler için)
     if(db[t]) return db[t];
 
+    // 2. Adım: İçinde geçiyor mu?
     for(let key in db){
         if(t.includes(key) || key.includes(t)){
             return db[key];
         }
     }
-    return "bunu henüz öğrenmedim 😄";
+
+    // 3. Adım: Bilmiyorsa rastgele cevap
+    const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Bilgi güçtür ama ben bunu bilmiyorum şimdilik!"];
+    return fb[Math.floor(Math.random()*fb.length)];
 }
 
 function send(){
@@ -84,8 +134,9 @@ function send(){
     let val = input.value.trim();
     if(!val) return;
 
+    // Google Arama (2 kere yazınca)
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Google'da arıyorum... 🚀", "bot");
+        add("Aynı şeyi yazdın, hemen arıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
         lastInput = ""; input.value = ""; return;
     }
@@ -93,12 +144,13 @@ function send(){
 
     add(val, "user");
     input.value = "";
+    
     let typingDiv = add("...", "bot typing");
     
     setTimeout(() => {
         typingDiv.remove();
         add(getReply(val), "bot");
-    }, 2000); 
+    }, 1800); 
 }
 
 function learn(){
@@ -109,19 +161,22 @@ function learn(){
     localStorage.setItem(KEY, JSON.stringify(db));
     document.getElementById("k").value = "";
     document.getElementById("v").value = "";
-    alert("Öğrenildi 👍");
+    alert("Hafızama kaydettim! 👍");
 }
 
 function add(text, type){
     let box = document.getElementById("box");
     let div = document.createElement("div");
     div.className = "msg " + type;
+    
     let icon = document.createElement("div");
     icon.className = "icon";
-    icon.innerText = type.includes("user") ? "🧑" : "🤖";
+    icon.innerText = type.includes("user") ? "👤" : "🤖";
+    
     let textDiv = document.createElement("div");
     textDiv.className = "text";
     textDiv.innerText = text;
+    
     div.appendChild(icon);
     div.appendChild(textDiv);
     box.appendChild(div);
