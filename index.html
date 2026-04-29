@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>HAMYAZ AI - V1 (Ultra Akıllı)</title>
+    <title>HAMYAZ AI - V1.1 (Ultra Akıllı)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
@@ -33,7 +33,7 @@
 
 <div id="chat">
     <div id="header">🇹🇷 HAMYAZ AI V1</div>
-    <div id="top">🚀 100+ Komut & İnternet Bilgisi Aktif</div>
+    <div id="top">🚀 Akıllı İnternet Araştırması Aktif</div>
     <div id="box"></div>
     <div id="learn">
         <input id="k" class="small" placeholder="Şunu diyince...">
@@ -73,9 +73,9 @@ const defaultDB = {
     "laptop": "Yazılımcı adamın kalemidir, çok yakışır sana.",
     "hamyaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
     "müslüman mısın": "Elhamdülillah müslümanım. 👍",
-    "Allah": "O her şeyi görendir ve bilendir. 🙏",
-    "Cami": "Huzur bulduğumuz yer...",
-    "Türk": "Türk olmak gururdur! 🇹🇷",
+    "allah": "O her şeyi görendir ve bilendir. 🙏",
+    "cami": "Huzur bulduğumuz yer...",
+    "türk": "Türk olmak gururdur! 🇹🇷",
     "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
     "lol": "Gülmekten öldük valla! 😂",
     "haha": "Hahah, neşemiz bol olsun!",
@@ -94,13 +94,16 @@ const defaultDB = {
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
-// İnternetten bilgi çekme (Wikipedia API)
+// İNTERNETTEN ARAŞTIRMA FONKSİYONU
 async function fetchFromInternet(query) {
+    let cleanQuery = query.replace(/ arat| ara| nedir| kim/gi, "").trim();
     try {
-        const response = await fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        // Wikipedia üzerinden bilgi çekmeyi dener
+        const response = await fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanQuery)}`);
         const data = await response.json();
+        
         if (data.extract) {
-            return "İnternette bulduğum bilgi: " + data.extract;
+            return "Hafızamda yoktu ama internetten araştırdım: " + data.extract;
         }
     } catch (e) {
         return null;
@@ -110,23 +113,23 @@ async function fetchFromInternet(query) {
 
 async function getReply(text){
     let t = text.toLowerCase().trim();
-    t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
     
-    // 1. Veritabanında kontrol
+    // 1. TAM EŞLEŞME (Veritabanındaki direkt cevaplar)
     if(db[t]) return db[t];
 
+    // 2. İÇİNDE GEÇİYOR MU? (Anahtar kelime kontrolü)
     for(let key in db){
-        if(t.includes(key) || key.includes(t)){
+        if(t.includes(key) && key.length > 2){ // Çok kısa kelimeleri (sa gibi) ezmemesi için
             return db[key];
         }
     }
 
-    // 2. İnternete sor
-    let internetBilgisi = await fetchFromInternet(text);
-    if(internetBilgisi) return internetBilgisi;
+    // 3. ANLAMADIĞI HER ŞEY İÇİN İNTERNETE GİT (Ahmet, nedir, kim vs.)
+    let internetSonuc = await fetchFromInternet(text);
+    if(internetSonuc) return internetSonuc;
 
-    // 3. Bulamazsa
-    const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Wow!"];
+    // 4. İNTERNETTE DE YOKSA
+    const fb = ["Bunu henüz öğrenmedim ve internette de bulamadım bra. 😄", "Anlamadım, sisteme öğretir misin?", "Hee, öyle mi? Araştırdım ama pek bir şey çıkmadı.", "Wow! İlginç bir soru."];
     return fb[Math.floor(Math.random()*fb.length)];
 }
 
@@ -135,9 +138,9 @@ async function send(){
     let val = input.value.trim();
     if(!val) return;
 
-    // Google Arama (Aynı şeyi 2 kez yazınca)
+    // Google Arama (2 kere yazınca)
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, hemen arıyorum! 🚀", "bot");
+        add("Aynı şeyi yazdın, direkt Google'ı açıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
         lastInput = ""; input.value = ""; return;
     }
@@ -146,18 +149,17 @@ async function send(){
     add(val, "user");
     input.value = "";
     
-    let typingDiv = add("Düşünüyorum...", "bot typing");
+    let typingDiv = add("Düşünüyorum ve araştırıyorum...", "bot typing");
     
-    // Yanıtı bekle ve yaz
     try {
         let reply = await getReply(val);
         setTimeout(() => {
             typingDiv.remove();
             add(reply, "bot");
-        }, 800);
-    } catch (e) {
+        }, 1000);
+    } catch (err) {
         typingDiv.remove();
-        add("Bir hata oluştu, tekrar yazar mısın?", "bot");
+        add("Bağlantıda bir sorun oldu bra, tekrar yazar mısın?", "bot");
     }
 }
 
