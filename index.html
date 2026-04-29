@@ -33,7 +33,7 @@
 
 <div id="chat">
     <div id="header">🇹🇷 HAMYAZ AI V1</div>
-    <div id="top">🚀 100+ Komut & Akıllı Sohbet Aktif</div>
+    <div id="top">🚀 100+ Komut & İnternet Erişimi Aktif</div>
     <div id="box"></div>
     <div id="learn">
         <input id="k" class="small" placeholder="Şunu diyince...">
@@ -50,9 +50,7 @@
 const KEY = "hamyaz_db_vFinal";
 let lastInput = ""; 
 
-// BOTUN DOĞUŞTAN BİLDİĞİ 100'E YAKIN ŞEY (Default DB)
 const defaultDB = {
-    // Selamlaşma
     "selam": "Aleykümselam kardeşim, hoş geldin! 🇹🇷",
     "sa": "Aleykümselam, naber aga? 😄",
     "as": "Naber, nasıl gidiyor?",
@@ -62,15 +60,11 @@ const defaultDB = {
     "nasılsın": "Çok iyiyim, seni gördüm daha iyi oldum! 😄",
     "napıyon": "Seninle laflıyoruz işte, sistemi geliştiriyorum. 😎",
     "ok": "yok yay 😂",
-    
-    // Kimlik & Mekan
     "kimsin": "Ben HAMYAZ AI! Türkiyenin en akıllı yapay zekasıyım. 🤖",
     "ismin ne": "İsmim HAMYAZ AI. Sen ne koymak istersen o olurum!",
     "nerelisin": "Bayburt aga! 😂",
     "kaç yaşındasın": "Kodlarım daha çok yeni ama ruhum 1000 yaşında!",
     "sahibin kim": "Beni HAMYAZ geliştirdi, onun imzasını taşıyorum İg:Hamyaz.io.",
-    
-    // Oyunlar & Teknoloji
     "roblox": "Roblox efsanedir, favori oyunun hangisi? 🎮",
     "minecraft": "Bedrock mı Java mı? Ben her türlü blok koyarım!",
     "gta": "GTA 5 mi oynuyoruz?  😂",
@@ -78,14 +72,10 @@ const defaultDB = {
     "github": "Kodların evi! GitHub'da site host etmek çok havalı bir iş.",
     "Laptop": " yazılımcı adamın kalemidir, çok yakışır sana.",
     "HamYaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
-    
-    // Din & Kültür
     "Müslüman mısın": "Elhamdülillah müslümanım. 👍",
     "Allah": "O her şeyi görendir ve bilendir. 🙏",
     "Cami": "Huzur bulduğumuz yer...",
     "Türk": "Türk olmak gururdur! 🇹🇷",
-    
-    // Eğlence & Tepki
     "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
     "lol": "Gülmekten öldük valla! 😂",
     "haha": "Hahah, neşemiz bol olsun!",
@@ -94,8 +84,6 @@ const defaultDB = {
     "küfür": "Ben temiz bir botum, küfürden hoşlanmam! 🚫",
     "bravo": "Teşekkürler, senin eserin! 🤝",
     "vay": "Vay ki ne vay!",
-    
-    // Günlük
     "saat kaç": "Şu an saat: " + new Date().toLocaleTimeString(),
     "hava nasıl": "Bayburtta'da hava her zaman güneşli (kalbimizde)! ☀️",
     "yemek": "Olsa da yesek, acıktım valla kod yiye yiye bıktım!",
@@ -106,37 +94,50 @@ const defaultDB = {
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
-function getReply(text){
+// İNTERNETTEN BİLGİ GETİRME FONKSİYONU
+async function fetchFromInternet(query) {
+    try {
+        // Wikipedia üzerinden hızlı bir özet çekme denemesi
+        const response = await fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        const data = await response.json();
+        if (data.extract) {
+            return "İnternette şöyle bir bilgi buldum: " + data.extract;
+        }
+    } catch (e) {
+        return null;
+    }
+    return null;
+}
+
+async function getReply(text){
     let t = text.toLowerCase().trim();
-    
-    // Kısaltmaları standart yapma
     t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
-    t = t.replace(/napion/g, "napıyon").replace(/napıosun/g, "napıyon");
-    t = t.replace(/nassın/g, "nasılsın").replace(/nasilsin/g, "nasılsın");
     
-    // 1. Adım: Tam eşleşme (ok gibi kısa şeyler için)
+    // 1. Kendi veritabanına bak
     if(db[t]) return db[t];
 
-    // 2. Adım: İçinde geçiyor mu?
     for(let key in db){
         if(t.includes(key) || key.includes(t)){
             return db[key];
         }
     }
 
-    // 3. Adım: Bilmiyorsa rastgele cevap
+    // 2. Eğer veritabanında yoksa İNTERNETE SOR
+    let internetBilgisi = await fetchFromInternet(text);
+    if(internetBilgisi) return internetBilgisi;
+
+    // 3. Hiçbir yerde yoksa rastgele cevap
     const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Wow!"];
     return fb[Math.floor(Math.random()*fb.length)];
 }
 
-function send(){
+async function send(){
     let input = document.getElementById("text");
     let val = input.value.trim();
     if(!val) return;
 
-    // Google Arama (2 kere yazınca)
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, hemen arıyorum! 🚀", "bot");
+        add("Aynı şeyi yazdın, hemen Google'da aratıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
         lastInput = ""; input.value = ""; return;
     }
@@ -145,12 +146,15 @@ function send(){
     add(val, "user");
     input.value = "";
     
-    let typingDiv = add("...", "bot typing");
+    let typingDiv = add("Düşünüyorum...", "bot typing");
+    
+    // getReply artık asenkron çalıştığı için await ekledik
+    let reply = await getReply(val);
     
     setTimeout(() => {
         typingDiv.remove();
-        add(getReply(val), "bot");
-    }, 1800); 
+        add(reply, "bot");
+    }, 1000); 
 }
 
 function learn(){
@@ -184,7 +188,4 @@ function add(text, type){
     return div; 
 }
 
-document.getElementById("text").addEventListener("keydown", e => { if(e.key === "Enter") send(); });
-</script>
-</body>
-</html>
+document.getElementById("text").addEventListener("keydown", e => { if
