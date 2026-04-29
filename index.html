@@ -33,7 +33,7 @@
 
 <div id="chat">
     <div id="header">🇹🇷 HAMYAZ AI V1</div>
-    <div id="top">🚀 100+ Komut & İnternet Erişimi Aktif</div>
+    <div id="top">🚀 100+ Komut & İnternet Bilgisi Aktif</div>
     <div id="box"></div>
     <div id="learn">
         <input id="k" class="small" placeholder="Şunu diyince...">
@@ -70,12 +70,12 @@ const defaultDB = {
     "gta": "GTA 5 mi oynuyoruz?  😂",
     "kod yaz": "Hangi dilde yazalım? HTML, CSS, JavaScript benden sorulur.",
     "github": "Kodların evi! GitHub'da site host etmek çok havalı bir iş.",
-    "Laptop": " yazılımcı adamın kalemidir, çok yakışır sana.",
-    "HamYaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
-    "Müslüman mısın": "Elhamdülillah müslümanım. 👍",
-    "Allah": "O her şeyi görendir ve bilendir. 🙏",
-    "Cami": "Huzur bulduğumuz yer...",
-    "Türk": "Türk olmak gururdur! 🇹🇷",
+    "laptop": "Yazılımcı adamın kalemidir, çok yakışır sana.",
+    "hamyaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
+    "müslüman mısın": "Elhamdülillah müslümanım. 👍",
+    "allah": "O her şeyi görendir ve bilendir. 🙏",
+    "cami": "Huzur bulduğumuz yer...",
+    "türk": "Türk olmak gururdur! 🇹🇷",
     "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
     "lol": "Gülmekten öldük valla! 😂",
     "haha": "Hahah, neşemiz bol olsun!",
@@ -94,14 +94,13 @@ const defaultDB = {
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
-// İNTERNETTEN BİLGİ GETİRME FONKSİYONU
+// İnternetten bilgi çekme (Wikipedia API)
 async function fetchFromInternet(query) {
     try {
-        // Wikipedia üzerinden hızlı bir özet çekme denemesi
         const response = await fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
         const data = await response.json();
         if (data.extract) {
-            return "İnternette şöyle bir bilgi buldum: " + data.extract;
+            return "İnternette bulduğum bilgi: " + data.extract;
         }
     } catch (e) {
         return null;
@@ -113,7 +112,7 @@ async function getReply(text){
     let t = text.toLowerCase().trim();
     t = t.replace(/slm/g, "selam").replace(/mrb/g, "merhaba");
     
-    // 1. Kendi veritabanına bak
+    // 1. Veritabanında kontrol
     if(db[t]) return db[t];
 
     for(let key in db){
@@ -122,11 +121,11 @@ async function getReply(text){
         }
     }
 
-    // 2. Eğer veritabanında yoksa İNTERNETE SOR
+    // 2. İnternete sor
     let internetBilgisi = await fetchFromInternet(text);
     if(internetBilgisi) return internetBilgisi;
 
-    // 3. Hiçbir yerde yoksa rastgele cevap
+    // 3. Bulamazsa
     const fb = ["Bunu henüz öğrenmedim, sisteme öğretir misin? 😄", "Anlamadım ama kulağa ilginç geliyor.", "Hee, öyle mi?", "Wow!"];
     return fb[Math.floor(Math.random()*fb.length)];
 }
@@ -136,8 +135,9 @@ async function send(){
     let val = input.value.trim();
     if(!val) return;
 
+    // Google Arama (Aynı şeyi 2 kez yazınca)
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, hemen Google'da aratıyorum! 🚀", "bot");
+        add("Aynı şeyi yazdın, hemen arıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
         lastInput = ""; input.value = ""; return;
     }
@@ -148,13 +148,17 @@ async function send(){
     
     let typingDiv = add("Düşünüyorum...", "bot typing");
     
-    // getReply artık asenkron çalıştığı için await ekledik
-    let reply = await getReply(val);
-    
-    setTimeout(() => {
+    // Yanıtı bekle ve yaz
+    try {
+        let reply = await getReply(val);
+        setTimeout(() => {
+            typingDiv.remove();
+            add(reply, "bot");
+        }, 800);
+    } catch (e) {
         typingDiv.remove();
-        add(reply, "bot");
-    }, 1000); 
+        add("Bir hata oluştu, tekrar yazar mısın?", "bot");
+    }
 }
 
 function learn(){
@@ -188,4 +192,7 @@ function add(text, type){
     return div; 
 }
 
-document.getElementById("text").addEventListener("keydown", e => { if
+document.getElementById("text").addEventListener("keydown", e => { if(e.key === "Enter") send(); });
+</script>
+</body>
+</html>
