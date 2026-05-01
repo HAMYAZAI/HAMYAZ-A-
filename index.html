@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>HAMYAZ AI - V1.1.1 (Ultra Akıllı)</title>
+    <title>HAMYAZ AI - V1.1.2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { --main-color: #ff0000; --bg-dark: #0d0d0d; --chat-bg: #1a1a1a; --text-color: #00ffcc; }
@@ -36,7 +36,7 @@
 
 <div id="chat">
     <div id="header">
-        <span>🇹🇷 HAMYAZ AI V1.1.1</span>
+        <span>🇹🇷 HAMYAZ AI</span>
         <div class="theme-btn" onclick="changeTheme()">🎨 Tema Değiştir</div>
     </div>
     <div id="top">🚀 İnternet & AI Ressam Aktif</div>
@@ -66,22 +66,13 @@ const defaultDB = {
     "iyiyim": "Süper! Daima iyi olman dileğiyle. 👍",
     "nasılsın": "Çok iyiyim, seni gördüm daha iyi oldum! 😄",
     "napıyon": "Seninle laflıyoruz işte, sistemi geliştiriyorum. 😎",
-    "ok": "yok yay 😂",
-    "kimsin": "Ben HAMYAZ AI! Türkiyenin en akıllı yapay zekasıyım. 🤖",
     "ismin ne": "İsmim HAMYAZ AI. Sen ne koymak istersen o olurum!",
-    "nerelisin": "Bayburt aga! 😂",
-    "sahibin kim": "Beni HAMYAZ geliştirdi, onun imzasını taşıyorum İg:Hamyaz.io.",
     "roblox": "Roblox efsanedir, favori oyunun hangisi? 🎮",
     "minecraft": "Bedrock mı Java mı? Ben her türlü blok koyarım!",
-    "gta": "GTA 5 mi oynasak? 😂",
-    "Müslüman mısın": "Elhamdülillah Müslümanım. 👍",
+    "müslüman mısın": "Elhamdülillah Müslümanım. 👍",
     "Allah": "Allah her şeyi görendir ve bilendir. 🙏",
-    "cami": "Cami, huzur bulduğumuz yerdir...",
+    "Cami": "Cami, huzur bulduğumuz yerdir...",
     "Türk": "Türk olmak gururdur! 🇹🇷",
-    "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
-    "lol": "Gülmekten öldük valla! 😂",
-    "haha": "Hahah, neşemiz bol olsun!",
-    "vay": "Vay ki ne vay!",
     "saat kaç": "Şu an saat: " + new Date().toLocaleTimeString(),
     "bye": "Görüşürüz kral, kendine iyi bak!"
 };
@@ -113,10 +104,12 @@ async function fetchFromInternet(query) {
     return null;
 }
 
+// YENİ VE GÜNCEL RESİM SERVİSİ
 async function generateImage(prompt) {
     let cleanPrompt = prompt.replace(/çiz|yap|oluştur/gi, "").trim();
-    let seed = Math.floor(Math.random() * 999999);
-    return `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1080&height=1080&seed=${seed}&model=flux&nologo=true`;
+    let seed = Math.floor(Math.random() * 1000000);
+    // image.pollinations.ai doğrudan resim dosyasına yönlendirir
+    return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
 }
 
 async function getReply(text){
@@ -136,8 +129,7 @@ async function getReply(text){
     let internetSonuc = await fetchFromInternet(text);
     if(internetSonuc) return { type: "text", content: internetSonuc };
 
-    const fb = ["Bunu henüz öğrenmedim ama istersen aşağıdan bana öğretebilirsin! 😄", "Anlayamadım bra, internette de pek bir şey bulamadım."];
-    return { type: "text", content: fb[Math.floor(Math.random()*fb.length)] };
+    return { type: "text", content: "Bunu henüz öğrenmedim ama istersen aşağıdan bana öğretebilirsin! 😄" };
 }
 
 async function send(){
@@ -155,7 +147,7 @@ async function send(){
     add(val, "user");
     input.value = "";
     
-    let typingDiv = add("Düşünüyorum ve hazırlıyorum...", "bot typing");
+    let typingDiv = add("Düşünüyorum ve çiziyorum...", "bot typing");
     
     try {
         let reply = await getReply(val);
@@ -169,7 +161,7 @@ async function send(){
         }, 1000);
     } catch (err) {
         typingDiv.remove();
-        add("Bağlantı koptu bra, tekrar yaz.", "bot");
+        add("Bağlantı hatası bra, tekrar dene.", "bot");
     }
 }
 
@@ -214,8 +206,8 @@ function addImg(text, url) {
     textDiv.innerHTML = `${text}<br>
     <a href="${url}" target="_blank">
         <img src="${url}" 
-             alt="Resim yükleniyor..." 
-             onerror="this.parentElement.innerHTML='Görsel şu an yüklenemedi bra, buraya tıklayarak direkt açabilirsin! ⚠️'">
+             alt="Resim yükleniyor bra, bekle..." 
+             onerror="this.src='https://via.placeholder.com/300x300?text=Yüklenemedi+Bra+Tekrar+Dene'">
     </a>`;
     
     div.appendChild(icon);
