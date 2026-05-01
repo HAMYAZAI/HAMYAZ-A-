@@ -5,35 +5,41 @@
     <title>HAMYAZ AI - V1.1 (Ultra Akıllı)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0d0d0d; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #chat { width: 100%; max-width: 500px; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; }
-        #header { background: linear-gradient(90deg, #ff0000, #990000); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.2rem; }
-        #top { background: #111; color: #00ffcc; text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #333; }
+        :root { --main-color: #ff0000; --bg-dark: #0d0d0d; --chat-bg: #1a1a1a; --text-color: #00ffcc; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; transition: 0.3s; }
+        #chat { width: 100%; max-width: 500px; height: 100%; background: var(--chat-bg); display: flex; flex-direction: column; position: relative; }
+        #header { background: linear-gradient(90deg, var(--main-color), #990000); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+        #top { background: #111; color: var(--text-color); text-align: center; padding: 6px; font-size: 13px; border-bottom: 1px solid #333; }
         #box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .msg { display: flex; align-items: flex-start; max-width: 85%; }
         .user { align-self: flex-end; flex-direction: row-reverse; }
         .bot { align-self: flex-start; }
-        .text { padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
+        .text { padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; word-break: break-word; }
         .user .text { background: #004d40; color: white; border-bottom-right-radius: 2px; }
-        .bot .text { background: #333; color: #00ffcc; border-bottom-left-radius: 2px; }
+        .bot .text { background: #333; color: var(--text-color); border-bottom-left-radius: 2px; }
+        .bot img { max-width: 100%; border-radius: 10px; margin-top: 5px; border: 2px solid var(--main-color); }
         .icon { width: 32px; height: 32px; border-radius: 50%; font-size: 20px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .user .icon { margin-left: 8px; background: #fff; }
         .bot .icon { margin-right: 8px; background: #900; }
         .typing { font-style: italic; color: #777 !important; background: transparent !important; }
         #inputArea { display: flex; padding: 12px; background: #111; border-top: 1px solid #333; }
         input { flex: 1; padding: 12px 18px; border: none; border-radius: 25px; background: #1e1e1e; color: white; outline: none; }
-        button { background: #ff0000; color: white; border: none; padding: 10px 20px; margin-left: 8px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #cc0000; }
+        button { background: var(--main-color); color: white; border: none; padding: 10px 20px; margin-left: 8px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
         #learn { background: #222; padding: 10px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #444; }
         .small { padding: 8px; border-radius: 10px; border: none; background: #111; color: white; font-size: 12px; }
-        .learnBtn { background: #ff0000; font-size: 12px; }
+        .learnBtn { background: var(--main-color); font-size: 12px; }
+        .theme-btn { font-size: 14px; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid white; }
     </style>
 </head>
 <body>
 
 <div id="chat">
-    <div id="header">🇹🇷 HAMYAZ AI V1.1</div>
-    <div id="top">🚀 Akıllı İnternet Araştırması Aktif</div>
+    <div id="header">
+        <span>🇹🇷 HAMYAZ AI V1.1</span>
+        <div class="theme-btn" onclick="changeTheme()">🎨 Tema</div>
+    </div>
+    <div id="top">🚀 İnternet & AI Ressam Aktif</div>
     <div id="box"></div>
     <div id="learn">
         <input id="k" class="small" placeholder="Şunu diyince...">
@@ -49,6 +55,7 @@
 <script>
 const KEY = "hamyaz_db_vFinal";
 let lastInput = ""; 
+let currentTheme = 0;
 
 const defaultDB = {
     "selam": "Aleykümselam kardeşim, hoş geldin! 🇹🇷",
@@ -72,11 +79,11 @@ const defaultDB = {
     "github": "Kodların evi! GitHub'da site host etmek çok havalı bir iş.",
     "laptop": "Yazılımcı adamın kalemidir, çok yakışır sana.",
     "hamyaz 17 pro": "Güzel telefon, ekranı da fena değil. Güle güle kullan!",
-    "müslüman mısın": "Elhamdülillah müslümanım. 👍",
-    "allah": "O her şeyi görendir ve bilendir. 🙏",
+    "Müslüman mısın": "Elhamdülillah müslümanım. 👍",
+    "Allah": "O her şeyi görendir ve bilendir. 🙏",
     "cami": "Huzur bulduğumuz yer...",
-    "türk": "Türk olmak gururdur! 🇹🇷",
-    "komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
+    "Türk": "Türk olmak gururdur! 🇹🇷",
+    "Komik bir şey de": "Geçen gün bir bilgisayar doktora gitmiş, 'Neyim var?' demiş. Doktor 'Virüs kapmışsın' demiş! 😂",
     "lol": "Gülmekten öldük valla! 😂",
     "haha": "Hahah, neşemiz bol olsun!",
     "mal": "Ayıp oluyor ama kardeşim, yakışıyor mu sana? 😔",
@@ -94,43 +101,67 @@ const defaultDB = {
 
 let db = JSON.parse(localStorage.getItem(KEY)) || defaultDB;
 
+// TEMA DEĞİŞTİRME FONKSİYONU
+function changeTheme() {
+    const root = document.documentElement;
+    currentTheme = (currentTheme + 1) % 3;
+    if(currentTheme === 0) { // Classic Red
+        root.style.setProperty('--main-color', '#ff0000');
+        root.style.setProperty('--text-color', '#00ffcc');
+    } else if(currentTheme === 1) { // Matrix Green
+        root.style.setProperty('--main-color', '#00ff00');
+        root.style.setProperty('--text-color', '#00ff00');
+    } else { // Neon Blue
+        root.style.setProperty('--main-color', '#00ccff');
+        root.style.setProperty('--text-color', '#00ccff');
+    }
+}
+
 // İNTERNETTEN ARAŞTIRMA FONKSİYONU
 async function fetchFromInternet(query) {
     let cleanQuery = query.replace(/ arat| ara| nedir| kim/gi, "").trim();
     try {
-        // Wikipedia üzerinden bilgi çekmeyi dener
         const response = await fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanQuery)}`);
         const data = await response.json();
-        
         if (data.extract) {
-            return "Hafızamda yoktu ama internetten araştırdım: " + data.extract;
+            return "İnternette araştırdım: " + data.extract;
         }
-    } catch (e) {
-        return null;
-    }
+    } catch (e) { return null; }
     return null;
+}
+
+// RESİM OLUŞTURMA FONKSİYONU
+async function generateImage(prompt) {
+    let cleanPrompt = prompt.replace(/çiz|yap|oluştur/gi, "").trim();
+    return `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=400&height=400&seed=${Math.floor(Math.random()*1000)}`;
 }
 
 async function getReply(text){
     let t = text.toLowerCase().trim();
     
-    // 1. TAM EŞLEŞME (Veritabanındaki direkt cevaplar)
-    if(db[t]) return db[t];
+    // 1. RESİM OLUŞTURMA KONTROLÜ
+    if(t.includes("çiz") || t.includes("oluştur") || t.includes("yap")) {
+        let imgUrl = await generateImage(t);
+        return { type: "image", content: imgUrl, text: "Senin için bunu çizdim: " };
+    }
 
-    // 2. İÇİNDE GEÇİYOR MU? (Anahtar kelime kontrolü)
+    // 2. TAM EŞLEŞME
+    if(db[t]) return { type: "text", content: db[t] };
+
+    // 3. İÇİNDE GEÇİYOR MU?
     for(let key in db){
-        if(t.includes(key) && key.length > 2){ // Çok kısa kelimeleri (sa gibi) ezmemesi için
-            return db[key];
+        if(t.includes(key) && key.length > 2){
+            return { type: "text", content: db[key] };
         }
     }
 
-    // 3. ANLAMADIĞI HER ŞEY İÇİN İNTERNETE GİT (Ahmet, nedir, kim vs.)
+    // 4. İNTERNETE GİT
     let internetSonuc = await fetchFromInternet(text);
-    if(internetSonuc) return internetSonuc;
+    if(internetSonuc) return { type: "text", content: internetSonuc };
 
-    // 4. İNTERNETTE DE YOKSA
-    const fb = ["Bunu henüz öğrenmedim ve internette de bulamadım bra. 😄", "Anlamadım, sisteme öğretir misin? Araştırdım ama pek bir şey çıkmadı.";
-    return fb[Math.floor(Math.random()*fb.length)];
+    // 5. BULAMAZSA
+    const fb = ["Bunu henüz öğrenmedim ve internette de bulamadım bra. 😄", "Anlamadım, sisteme öğretir misin?"];
+    return { type: "text", content: fb[Math.floor(Math.random()*fb.length)] };
 }
 
 async function send(){
@@ -138,7 +169,6 @@ async function send(){
     let val = input.value.trim();
     if(!val) return;
 
-    // Google Arama (2 kere yazınca)
     if(val.toLowerCase() === lastInput.toLowerCase()){
         add("Aynı şeyi yazdın, direkt Google'ı açıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
@@ -155,11 +185,15 @@ async function send(){
         let reply = await getReply(val);
         setTimeout(() => {
             typingDiv.remove();
-            add(reply, "bot");
-        }, 1000);
+            if(reply.type === "image") {
+                addImg(reply.text, reply.content);
+            } else {
+                add(reply.content, "bot");
+            }
+        }, 1200);
     } catch (err) {
         typingDiv.remove();
-        add("Bağlantıda bir sorun oldu bra, tekrar yazar mısın?", "bot");
+        add("Bağlantıda sorun oldu, tekrar dene.", "bot");
     }
 }
 
@@ -178,20 +212,33 @@ function add(text, type){
     let box = document.getElementById("box");
     let div = document.createElement("div");
     div.className = "msg " + type;
-    
     let icon = document.createElement("div");
     icon.className = "icon";
     icon.innerText = type.includes("user") ? "👤" : "🤖";
-    
     let textDiv = document.createElement("div");
     textDiv.className = "text";
     textDiv.innerText = text;
-    
     div.appendChild(icon);
     div.appendChild(textDiv);
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
     return div; 
+}
+
+function addImg(text, url) {
+    let box = document.getElementById("box");
+    let div = document.createElement("div");
+    div.className = "msg bot";
+    let icon = document.createElement("div");
+    icon.className = "icon";
+    icon.innerText = "🤖";
+    let textDiv = document.createElement("div");
+    textDiv.className = "text";
+    textDiv.innerHTML = `${text}<br><img src="${url}" alt="AI Image">`;
+    div.appendChild(icon);
+    div.appendChild(textDiv);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
 }
 
 document.getElementById("text").addEventListener("keydown", e => { if(e.key === "Enter") send(); });
