@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>HAMYAZ AI - V1.1.2</title>
+    <title>HAMYAZ AI - V1.1.3 (Stabil Verizyon)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { --main-color: #ff0000; --bg-dark: #0d0d0d; --chat-bg: #1a1a1a; --text-color: #00ffcc; }
@@ -66,7 +66,6 @@ const defaultDB = {
     "iyiyim": "Süper! Daima iyi olman dileğiyle. 👍",
     "nasılsın": "Çok iyiyim, seni gördüm daha iyi oldum! 😄",
     "napıyon": "Seninle laflıyoruz işte, sistemi geliştiriyorum. 😎",
-    "ismin ne": "İsmim HAMYAZ AI. Sen ne koymak istersen o olurum!",
     "roblox": "Roblox efsanedir, favori oyunun hangisi? 🎮",
     "minecraft": "Bedrock mı Java mı? Ben her türlü blok koyarım!",
     "müslüman mısın": "Elhamdülillah Müslümanım. 👍",
@@ -104,12 +103,12 @@ async function fetchFromInternet(query) {
     return null;
 }
 
-// YENİ VE GÜNCEL RESİM SERVİSİ
+// GÜNCELLENMİŞ RESİM FONKSİYONU
 async function generateImage(prompt) {
     let cleanPrompt = prompt.replace(/çiz|yap|oluştur/gi, "").trim();
-    let seed = Math.floor(Math.random() * 1000000);
-    // image.pollinations.ai doğrudan resim dosyasına yönlendirir
-    return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=flux`;
+    // Çok büyük bir seed kullanarak isteği benzersiz yapıyoruz
+    let seed = Math.floor(Math.random() * 1000000000);
+    return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
 }
 
 async function getReply(text){
@@ -129,7 +128,7 @@ async function getReply(text){
     let internetSonuc = await fetchFromInternet(text);
     if(internetSonuc) return { type: "text", content: internetSonuc };
 
-    return { type: "text", content: "Bunu henüz öğrenmedim ama istersen aşağıdan bana öğretebilirsin! 😄" };
+    return { type: "text", content: "Bunu henüz öğrenmedim bra ama aşağıdan bana öğretebilirsin! 😄" };
 }
 
 async function send(){
@@ -138,7 +137,7 @@ async function send(){
     if(!val) return;
 
     if(val.toLowerCase() === lastInput.toLowerCase()){
-        add("Aynı şeyi yazdın, Google'ı açıyorum! 🚀", "bot");
+        add("Aynı şeyi yazdın bra, Google'ı açıyorum! 🚀", "bot");
         setTimeout(() => { window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank'); }, 1000);
         lastInput = ""; input.value = ""; return;
     }
@@ -193,6 +192,7 @@ function add(text, type){
     return div; 
 }
 
+// GÜNCELLENMİŞ RESİM GÖSTERME FONKSİYONU
 function addImg(text, url) {
     let box = document.getElementById("box");
     let div = document.createElement("div");
@@ -206,8 +206,8 @@ function addImg(text, url) {
     textDiv.innerHTML = `${text}<br>
     <a href="${url}" target="_blank">
         <img src="${url}" 
-             alt="Resim yükleniyor bra, bekle..." 
-             onerror="this.src='https://via.placeholder.com/300x300?text=Yüklenemedi+Bra+Tekrar+Dene'">
+             alt="Resim hazırlanıyor..." 
+             onerror="this.parentElement.innerHTML='Şu an sunucular çok yoğun bra, 10 saniye sonra tekrar dene! ⚠️<br>(Veya tıklayıp direkt bak)'">
     </a>`;
     
     div.appendChild(icon);
@@ -221,4 +221,4 @@ function addImg(text, url) {
 document.getElementById("text").addEventListener("keydown", e => { if(e.key === "Enter") send(); });
 </script>
 </body>
-</html>
+</html>A
